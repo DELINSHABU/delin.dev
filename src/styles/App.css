@@ -27,7 +27,7 @@
 }
 
 main {
-  padding-left: var(--header-width);
+  padding-left: 100px;
   min-height: 100vh;
 }
 
@@ -41,12 +41,12 @@ section {
 @media (max-width: 768px) {
   main {
     padding-left: 0;
-    padding-top: var(--header-mobile-height);
+    padding-bottom: 60px;
   }
 
   section {
     padding: 1.5rem;
-    scroll-margin-top: var(--header-mobile-height);
+    scroll-margin-bottom: 60px;
   }
 }
 
