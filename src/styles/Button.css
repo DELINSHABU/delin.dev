@@ -1,0 +1,35 @@
+.button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  font-weight: 500;
+  font-feature-settings: "liga" 0;
+}
+
+.button.primary.light {
+  background-color: #007bff;
+  color: white;
+}
+
+.button.primary.dark {
+  background-color: #0056b3;
+  color: white;
+}
+
+.button.secondary.light {
+  background-color: #6c757d;
+  color: white;
+}
+
+.button.secondary.dark {
+  background-color: #495057;
+  color: white;
+}
+
+.button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}

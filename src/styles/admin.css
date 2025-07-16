@@ -1,0 +1,127 @@
+.admin-page {
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.admin-page.light {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.admin-page.dark {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.admin-form-section,
+.admin-list-section {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+.tech-input-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tech-input-container input {
+  flex: 1;
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--accent-color);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.remove-tech {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  font-size: 1rem;
+}
+
+.admin-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-button:hover {
+  background-color: var(--accent-color-hover);
+}
+
+.admin-button-secondary {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-button-secondary:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-color);
+}

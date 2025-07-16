@@ -1,0 +1,73 @@
+.home {
+  min-height: 100vh;
+  padding: 0 clamp(1rem, 4vw, 4rem) 0 clamp(2rem, 8vw, 8rem); /* Responsive padding */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.home.light {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+.home.dark {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  max-width: min(90vw, 75rem); /* 1200px in rem, with viewport limit */
+  margin: 0 auto;
+  gap: clamp(2rem, 4vw, 4rem); /* Responsive gap */
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: clamp(3.5rem, 7vw, 6.25rem); /* 56px to 100px responsive */
+  font-weight: 700;
+  margin-bottom: 2rem;
+  line-height: 1.1;
+  font-feature-settings: "liga" 0;
+  letter-spacing: -0.02em;
+}
+
+.hero-description {
+  font-size: clamp(1.25rem, 1.5vw, 1.5rem); /* 20px to 24px responsive */
+  font-weight: 400;
+  line-height: 1.5;
+  margin-bottom: 3rem;
+  max-width: 45ch; /* Slightly wider for larger text */
+  opacity: 0.9;
+  color: #666666;
+  font-feature-settings: "liga" 0;
+  letter-spacing: -0.01em;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: clamp(1.5rem, 2vw, 2rem);
+}
+
+.social-link {
+  font-size: 1.5rem;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.social-link:hover {
+  transform: translateY(-0.2rem);
+}

@@ -1,0 +1,181 @@
+.about-page {
+  min-height: 100vh;
+  padding: 0 clamp(1rem, 4vw, 4rem) 0 clamp(2rem, 8vw, 8rem);
+  color: #1a1a1a;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.about-page.dark {
+  color: #ffffff;
+  background-color: #1a1a1a;
+}
+
+.about-container {
+  max-width: min(90vw, 75rem);
+  margin: 0 auto;
+  padding: 4rem 0;
+}
+
+/* Hero Section */
+.about-hero {
+  padding: 4rem 0;
+}
+
+.about-content h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  margin-bottom: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.about-description {
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 60ch;
+  margin-bottom: 3rem;
+  opacity: 0.9;
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 4rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-number {
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* Skills Section */
+.skills-section {
+  padding: 4rem 0;
+}
+
+.skills-section h2 {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  margin-bottom: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.skill-category {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.skill-category:hover {
+  transform: translateY(-0.5rem);
+}
+
+.skill-category h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.skill-category ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.skill-category li {
+  margin-bottom: 0.75rem;
+  opacity: 0.8;
+  font-size: 1rem;
+}
+
+/* Journey Section */
+.journey-section {
+  padding: 4rem 0;
+}
+
+.journey-section h2 {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  margin-bottom: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 2rem;
+  padding-bottom: 2rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.5;
+}
+
+.timeline-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-content h4 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.timeline-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-container {
+    padding: 2rem 0;
+  }
+  
+  .stats {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .timeline-item {
+    padding-left: 1.5rem;
+  }
+}
