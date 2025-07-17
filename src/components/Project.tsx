@@ -16,7 +16,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ id, title, description, image
       <div className="project-content">
         {imageUrl && <img src={imageUrl} alt={title} className="project-image" />}
         <div className="project-info">
-          <h3>{title}</h3>
+          
           <p>{description}</p>
         </div>
       </div>

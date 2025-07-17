@@ -1,7 +1,13 @@
 # Product Overview
 
 **delin.dev** is a personal portfolio website showcasing a developer's work, skills, and experience. 
-![ScreenshotOfWebsite.png](https://raw.githubusercontent.com/username/repo-name/main/ScreenshotOfWebsite.png)
+
+## Project Overview
+| [Live Site][site] |
+| ----------------- |
+| ![Site Preview](src/desgin/ScreenshotOfWebsite.png) |
+
+[site]: https://your-live-site-url.com
 
 
 ## Key Features
