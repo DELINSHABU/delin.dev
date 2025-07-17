@@ -1,6 +1,8 @@
 # Product Overview
 
 **delin.dev** is a personal portfolio website showcasing a developer's work, skills, and experience. 
+![ScreenshotOfWebsite.png](./ScreenshotOfWebsite.png)
+
 
 ## Key Features
 - Single-page application with smooth scrolling navigation
