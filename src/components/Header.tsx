@@ -1,9 +1,14 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { staggerContainer, fadeInUp } from '../utils/animations';
 import '../styles/Header.css';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const handleToggleTheme = () => {
+    toggleTheme();
+  };
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -13,19 +18,39 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className={`header ${theme}`}>
-      <nav>
-        <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+    <motion.header 
+      className={`header ${theme}`}
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
+    >
+      <motion.nav variants={fadeInUp}>
+        <motion.button 
+          className="theme-toggle" 
+          onClick={handleToggleTheme} 
+          aria-label="Toggle theme"
+        >
           <i className={`fas ${theme === 'light' ? 'fa-moon' : 'fa-sun'}`}></i>
-        </button>
-        <ul className="nav-links">
-          <li><a onClick={() => scrollToSection('home')} href="#home">Home</a></li>
-          <li><a onClick={() => scrollToSection('about')} href="#about">About</a></li>
-          <li><a onClick={() => scrollToSection('projects')} href="#projects">Projects</a></li>
-          <li><a onClick={() => scrollToSection('contact')} href="#contact">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
+        </motion.button>
+        <motion.ul className="nav-links" variants={staggerContainer}>
+          {[
+            { id: 'home', label: 'Home' },
+            { id: 'about', label: "About"},
+            { id: 'projects', label: 'Projects' },
+            { id: 'contact', label: 'Contact' }
+          ].map((item) => (
+            <motion.li key={item.id} variants={fadeInUp}>
+              <motion.a 
+                onClick={() => scrollToSection(item.id)} 
+                href={`#${item.id}`}
+              >
+                {item.label}
+              </motion.a>
+            </motion.li>
+          ))}
+        </motion.ul>
+      </motion.nav>
+    </motion.header>
   );
 };
 

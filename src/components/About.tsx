@@ -1,5 +1,8 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, scaleIn } from '../utils/animations';
 import '../styles/About.css';
 
 interface TimelineItemProps {
@@ -10,17 +13,26 @@ interface TimelineItemProps {
 
 const TimelineItem: React.FC<TimelineItemProps> = ({ year, title, description }) => {
   return (
-    <div className="timeline-item">
-      <div className="timeline-year">{year}</div>
-      <div className="timeline-content">
+    <motion.div 
+      className="timeline-item"
+      variants={fadeInLeft}
+      whileHover={{ scale: 1.02, x: 10 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div className="timeline-year" variants={scaleIn}>{year}</motion.div>
+      <motion.div className="timeline-content" variants={fadeInRight}>
         <h3>{title}</h3>
         <p>{description}</p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
 const AboutComponent: React.FC = () => {
+  const { ref: bioRef, isInView: bioInView } = useScrollAnimation();
+  const { ref: skillsRef, isInView: skillsInView } = useScrollAnimation();
+  const { ref: timelineRef, isInView: timelineInView } = useScrollAnimation();
+
   const timelineItems = [
     {
       year: "2023",
@@ -39,36 +51,69 @@ const AboutComponent: React.FC = () => {
     }
   ];
 
+  const skillItems = ["React.js", "TypeScript", "Node.js", "MongoDB", "CSS/SCSS", "Git"];
+
   return (
-    <section className="about-section">
+    <section className="about-section" id="about">
       <div className="about-content">
-        <div className="bio-section">
-          <h2>About Me</h2>
-          <p>
+        <motion.div 
+          className="bio-section"
+          ref={bioRef}
+          initial="hidden"
+          animate={bioInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+        >
+          <motion.h2 variants={fadeInUp}>About Me</motion.h2>
+          <motion.p variants={fadeInUp}>
             I'm a passionate developer who loves creating beautiful and functional web applications.
             My journey in web development started with a curiosity about how things work on the internet,
             and that curiosity has grown into a full-fledged passion for creating digital experiences.
-          </p>
-        </div>
-        <div className="skills-section">
-          <h2>Skills</h2>
-          <div className="skills-grid">
-            <div className="skill-item">React.js</div>
-            <div className="skill-item">TypeScript</div>
-            <div className="skill-item">Node.js</div>
-            <div className="skill-item">MongoDB</div>
-            <div className="skill-item">CSS/SCSS</div>
-            <div className="skill-item">Git</div>
-          </div>
-        </div>
-        <div className="timeline-section">
-          <h2>Journey</h2>
-          <div className="timeline">
+          </motion.p>
+        </motion.div>
+
+        <motion.div 
+          className="skills-section"
+          ref={skillsRef}
+          initial="hidden"
+          animate={skillsInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+        >
+          <motion.h2 variants={fadeInUp}>Skills</motion.h2>
+          <motion.div className="skills-grid" variants={staggerContainer}>
+            {skillItems.map((skill, index) => (
+              <motion.div 
+                key={skill}
+                className="skill-item"
+                variants={scaleIn}
+                whileHover={{ 
+                  scale: 1.1, 
+                  backgroundColor: '#007bff',
+                  color: '#fff',
+                  boxShadow: '0 5px 15px rgba(0,123,255,0.3)'
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+              >
+                {skill}
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        <motion.div 
+          className="timeline-section"
+          ref={timelineRef}
+          initial="hidden"
+          animate={timelineInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+        >
+          <motion.h2 variants={fadeInUp}>Journey</motion.h2>
+          <motion.div className="timeline" variants={staggerContainer}>
             {timelineItems.map((item, index) => (
               <TimelineItem key={index} {...item} />
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

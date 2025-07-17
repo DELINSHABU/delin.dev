@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import TypewriterText from '../components/TypewriterText';
 import '../styles/Contact.css';
 
 interface FormData {
@@ -11,6 +13,7 @@ interface FormData {
 
 const Contact: React.FC = () => {
   const { theme } = useTheme();
+  const [startContactTyping, setStartContactTyping] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -44,7 +47,30 @@ const Contact: React.FC = () => {
       <main className="contact-page">
         <div className="contact-container">
           <section className="contact-info">
-            <h1>Get in Touch</h1>
+            <motion.h1
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.5 }}
+              variants={{
+                hidden: { opacity: 0 },
+                visible: { 
+                  opacity: 1, 
+                  transition: { 
+                    duration: 0.5,
+                    onComplete: () => setStartContactTyping(true)
+                  } 
+                }
+              }}
+            >
+              <TypewriterText 
+                text="Get in Touch" 
+                speed={150}
+                startDelay={300}
+                cursorChar="_"
+                showCursor={true}
+                trigger={startContactTyping}
+              />
+            </motion.h1>
             <p className="contact-description">
               Have a project in mind? Let's work together to bring your ideas to life.
             </p>
