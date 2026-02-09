@@ -11,10 +11,10 @@ const About: React.FC = () => {
   const [startJourneyTyping, setStartJourneyTyping] = useState(false);
   
   const skills = [
-    { category: "Frontend", items: ["React", "TypeScript", "Next.js", "HTML5/CSS3"] },
-    { category: "Backend", items: ["Node.js", "Express", "MongoDB", "REST APIs"] },
-    { category: "Tools", items: ["Git", "VS Code", "Docker", "Figma"] },
-    { category: "Soft Skills", items: ["Problem Solving", "Team Collaboration", "Communication", "Adaptability"] }
+    { category: "Frontend", items: ["React", "TypeScript", "Next.js", "Angular", "Vue.js"] },
+    { category: "Backend", items: ["Node.js", "Express", "MongoDB", "Firebase"] },
+    { category: "AI & Tools", items: ["Gemini", "Claude", "Midjourney", "Fooocus"] },
+    { category: "IT & DevOps", items: ["Linux", "SSH", "Vercel", "Git"] }
   ];
 
   const containerVariants = {
@@ -94,13 +94,13 @@ const About: React.FC = () => {
               />
             </motion.h1>
             <p className="about-description">
-              I'm a full-stack developer with a passion for creating elegant solutions 
-              to complex problems. My journey in tech started with a curiosity about 
-              how things work, and that curiosity continues to drive me today.
+              A versatile IT professional and Linux power user who architects end-to-end solutions 
+              by leveraging cutting-edge AI technologies. From supporting global clients at Sutherland 
+              to crafting MERN stack applications — I turn caffeine into code and bugs into features.
             </p>
             <div className="stats">
               <div className="stat-item">
-                <span className="stat-number">2+</span>
+                <span className="stat-number">3+</span>
                 <span className="stat-label">Years Experience</span>
               </div>
               <div className="stat-item">
@@ -166,23 +166,30 @@ const About: React.FC = () => {
           <motion.div className="timeline" variants={containerVariants}>
             <motion.div className="timeline-item" variants={itemVariants}>
               <div className="timeline-content">
-                <h3>2023 - Present</h3>
-                <h4>Freelance Developer</h4>
-                <p>Working on various projects for clients worldwide, specializing in web applications and e-commerce solutions.</p>
+                <h3>AUG 2024 - OCT 2025</h3>
+                <h4>IT Associate | Sutherland, Ernakulam</h4>
+                <p>Provided comprehensive IT support for international clients in a global MNC environment, specializing in technical troubleshooting, cross-cultural communication, and process efficiency.</p>
               </div>
             </motion.div>
             <motion.div className="timeline-item" variants={itemVariants}>
               <div className="timeline-content">
-                <h3>2021 - 2023</h3>
-                <h4>Junior Developer</h4>
-                <p>Started my professional journey, working on full-stack applications and learning from experienced developers.</p>
+                <h3>OCT 2023 - Present</h3>
+                <h4>Freelancer | Trivandrum & Kollam</h4>
+                <p>AI-enhanced development using Gemini and Claude Code, Linux & network administration, generative media production with Midjourney/Fooocus, and end-to-end IT infrastructure support.</p>
               </div>
             </motion.div>
             <motion.div className="timeline-item" variants={itemVariants}>
               <div className="timeline-content">
-                <h3>2020 - 2021</h3>
-                <h4>Self-Learning</h4>
-                <p>Dedicated time to learning modern web technologies and building personal projects.</p>
+                <h3>JUL 2019 - JAN 2022</h3>
+                <h4>Creative Person | Corindians, Kollam</h4>
+                <p>Multimedia production using After Effects, Premiere Pro, and DaVinci Resolve. Executed digital marketing campaigns with Google Ads and Facebook Ads while managing Linux workstations.</p>
+              </div>
+            </motion.div>
+            <motion.div className="timeline-item" variants={itemVariants}>
+              <div className="timeline-content">
+                <h3>Education</h3>
+                <h4>BSc. Computer Science | Canchipur, Manipur</h4>
+                <p>MERN Stack Developer certification from Brototype, Trivandrum.</p>
               </div>
             </motion.div>
           </motion.div>

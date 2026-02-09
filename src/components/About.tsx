@@ -35,19 +35,19 @@ const AboutComponent: React.FC = () => {
 
   const timelineItems = [
     {
-      year: "2023",
-      title: "Started Learning React",
-      description: "Began my journey into web development with React and TypeScript."
+      year: "2024-2025",
+      title: "IT Associate | Sutherland",
+      description: "Global technical support for international clients, cross-cultural communication, and technical troubleshooting."
     },
     {
-      year: "2024",
-      title: "First Projects",
-      description: "Created several personal projects to strengthen my development skills."
+      year: "2023-Present",
+      title: "Freelancer",
+      description: "AI-enhanced development, Linux administration, generative media, and IT infrastructure support."
     },
     {
-      year: "2025",
-      title: "Portfolio Development",
-      description: "Building my personal portfolio website to showcase my work and skills."
+      year: "2019-2022",
+      title: "Creative Person | Corindians",
+      description: "Multimedia production, digital marketing campaigns, and Linux workstation management."
     }
   ];
 

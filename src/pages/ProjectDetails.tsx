@@ -24,120 +24,118 @@ interface ProjectDetail {
 }
 
 const projects: Record<string, ProjectDetail> = {
-  'project-one': {
-    id: 'project-one',
-    title: 'E-Commerce Platform',
-    description: 'A full-stack e-commerce solution',
-    longDescription: `A comprehensive e-commerce platform built with React.js and Node.js. 
-    This project showcases advanced features like real-time inventory management, 
-    secure payment processing, and a responsive user interface.`,
+  'bloom-cafe-pos': {
+    id: 'bloom-cafe-pos',
+    title: 'Bloom Cafe POS',
+    description: 'Full-stack Point of Sale application for cafe management',
+    longDescription: `A comprehensive Point of Sale system designed for cafe operations. 
+    Built with the MERN stack, featuring order management, inventory tracking, 
+    and sales analytics — because even coffee shops deserve clean code.`,
     imageUrl: '/project1.jpg',
     technologies: [
       { name: 'React.js', icon: 'fab fa-react' },
       { name: 'Node.js', icon: 'fab fa-node-js' },
       { name: 'MongoDB', icon: 'fas fa-database' },
-      { name: 'TypeScript', icon: 'fas fa-code' }
+      { name: 'Express', icon: 'fas fa-server' }
     ],
-    liveLink: 'https://example.com/ecommerce',
-    githubLink: 'https://github.com/example/ecommerce',
+    githubLink: 'https://github.com/DELINSHABU/BloomCafePOS',
     features: [
-      'User authentication and authorization',
-      'Product catalog with search and filtering',
-      'Shopping cart and checkout process',
-      'Admin dashboard for inventory management'
+      'Order management system',
+      'Real-time inventory tracking',
+      'Sales analytics dashboard',
+      'Multi-user support with roles'
     ],
     challenges: [
-      'Implementing real-time inventory updates',
-      'Optimizing database queries for performance',
-      'Ensuring secure payment processing',
-      'Building responsive UI for all devices'
+      'Building real-time order updates',
+      'Implementing secure payment flow',
+      'Optimizing for high-traffic usage',
+      'Creating intuitive cashier interface'
     ],
     screenshots: ['/project1-screenshot1.jpg', '/project1-screenshot2.jpg', '/project1-screenshot3.jpg']
   },
-  'project-two': {
-    id: 'project-two',
-    title: 'Task Management App',
-    description: 'Real-time task management with full-stack capabilities',
-    longDescription: `A collaborative task management application that allows teams to organize, 
-    track, and manage their projects effectively. Features real-time updates and intuitive UI.`,
+  'stylewav-ecommerce': {
+    id: 'stylewav-ecommerce',
+    title: 'StyleWav E-Commerce',
+    description: 'Modern e-commerce platform built with MERN stack',
+    longDescription: `A full-featured e-commerce platform for fashion and lifestyle products. 
+    Features product catalog, shopping cart, secure checkout, and admin dashboard — 
+    shipping style, one commit at a time.`,
     imageUrl: '/project2.jpg',
     technologies: [
       { name: 'React.js', icon: 'fab fa-react' },
-      { name: 'Firebase', icon: 'fas fa-fire' },
-      { name: 'Redux', icon: 'fas fa-layer-group' },
-      { name: 'SCSS', icon: 'fab fa-sass' }
+      { name: 'Node.js', icon: 'fab fa-node-js' },
+      { name: 'MongoDB', icon: 'fas fa-database' },
+      { name: 'Express', icon: 'fas fa-server' }
     ],
-    liveLink: 'https://example.com/taskapp',
-    githubLink: 'https://github.com/example/taskapp',
+    githubLink: 'https://github.com/DELINSHABU/StyleWav',
     features: [
-      'Real-time collaboration',
-      'Task assignment and tracking',
-      'Project timeline visualization',
-      'File sharing and comments'
+      'Product catalog with filtering',
+      'Shopping cart and wishlist',
+      'Secure checkout process',
+      'Admin dashboard for management'
     ],
     challenges: [
-      'Implementing real-time updates',
-      'Managing complex state',
-      'Optimizing performance',
-      'Building intuitive UI'
+      'Implementing secure payments',
+      'Building responsive product galleries',
+      'Optimizing search and filtering',
+      'Managing complex cart state'
     ],
     screenshots: ['/project2-screenshot1.jpg', '/project2-screenshot2.jpg', '/project2-screenshot3.jpg']
   },
-  'project-three': {
-    id: 'project-three',
-    title: 'Portfolio Website',
-    description: 'Modern UI/UX Design with React and TypeScript',
-    longDescription: `A modern portfolio website built with React and TypeScript. 
-    Features a clean, responsive design with smooth animations and interactive elements.`,
+  'job-tracker': {
+    id: 'job-tracker',
+    title: 'Job Applying Tracker',
+    description: 'Track and manage job applications efficiently',
+    longDescription: `A productivity tool to track job applications, interview stages, and follow-ups. 
+    Built to stay organized during the job hunt — because spreadsheets are so 2010.`,
     imageUrl: '/project3.jpg',
     technologies: [
-      { name: 'React', icon: 'fab fa-react' },
+      { name: 'React.js', icon: 'fab fa-react' },
       { name: 'TypeScript', icon: 'fas fa-code' },
-      { name: 'CSS Modules', icon: 'fab fa-css3' },
-      { name: 'Framer Motion', icon: 'fas fa-film' }
+      { name: 'Firebase', icon: 'fas fa-fire' },
+      { name: 'CSS', icon: 'fab fa-css3' }
     ],
-    liveLink: 'https://example.com/portfolio',
-    githubLink: 'https://github.com/example/portfolio',
+    githubLink: 'https://github.com/DELINSHABU/Job-Applying-Tracker',
     features: [
-      'Responsive design',
-      'Dark/Light theme',
-      'Smooth animations',
-      'Project showcase'
+      'Application status tracking',
+      'Interview stage management',
+      'Follow-up reminders',
+      'Analytics and insights'
     ],
     challenges: [
-      'Implementing smooth animations',
-      'Optimizing performance',
-      'Creating responsive layouts',
-      'Managing theme system'
+      'Designing intuitive workflow',
+      'Implementing data persistence',
+      'Building responsive dashboard',
+      'Creating useful analytics'
     ],
     screenshots: ['/project3-screenshot1.jpg', '/project3-screenshot2.jpg', '/project3-screenshot3.jpg']
   },
-  'project-four': {
-    id: 'project-four',
-    title: 'Mobile Chat App',
-    description: 'React Native application with Firebase backend',
-    longDescription: `A cross-platform mobile chat application built with React Native and Firebase. 
-    Features real-time messaging, file sharing, and user presence system.`,
+  'anomaly-design-studio': {
+    id: 'anomaly-design-studio',
+    title: 'Anomaly Design Studio',
+    description: 'Portfolio website for an architecture and interior design studio',
+    longDescription: `A sleek portfolio website for Anomaly Design Studio, showcasing architecture 
+    and interior design projects. Built with modern web technologies to highlight creative work — 
+    where code meets concrete.`,
     imageUrl: '/project4.jpg',
     technologies: [
-      { name: 'React Native', icon: 'fab fa-react' },
-      { name: 'Firebase', icon: 'fas fa-fire' },
+      { name: 'React.js', icon: 'fab fa-react' },
       { name: 'TypeScript', icon: 'fas fa-code' },
-      { name: 'Redux', icon: 'fas fa-layer-group' }
+      { name: 'CSS', icon: 'fab fa-css3' },
+      { name: 'Framer Motion', icon: 'fas fa-film' }
     ],
-    liveLink: 'https://example.com/chatapp',
-    githubLink: 'https://github.com/example/chatapp',
+    liveLink: 'https://anomalydesignstudio.com/',
     features: [
-      'Real-time messaging',
-      'File sharing',
-      'User presence system',
-      'Push notifications'
+      'Project portfolio showcase',
+      'Responsive gallery design',
+      'Smooth animations',
+      'Contact integration'
     ],
     challenges: [
-      'Managing real-time connections',
-      'Implementing push notifications',
-      'Optimizing app performance',
-      'Cross-platform compatibility'
+      'Creating visual-first design',
+      'Optimizing image loading',
+      'Building responsive layouts',
+      'Balancing aesthetics with performance'
     ],
     screenshots: ['/project4-screenshot1.jpg', '/project4-screenshot2.jpg', '/project4-screenshot3.jpg']
   }

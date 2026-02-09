@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '../components/Button';
 import { useTheme } from '../context/ThemeContext';
 import TypewriterText from '../components/TypewriterText';
+import xLogo from '../Newtwitterlogo/logo.svg';
 import '../styles/Home.css';
 
 const Home: React.FC = () => {
@@ -42,7 +43,7 @@ const Home: React.FC = () => {
           {showDescription && (
             <p className="hero-description">
               <TypewriterText 
-                text="Embarking on a coding odyssey with React.js, MongoDB and a sprinkle of motion graphics. Unemployed by companies, employed by laughter."
+                text="Full stack developer leveraging AI to ship smarter, faster — caffeinated by curiosity. Ex-Sutherland, currently unemployed by companies, employed by ctrl+z."
                 speed={25}
                 startDelay={300}
                 cursorChar="|"
@@ -69,11 +70,11 @@ const Home: React.FC = () => {
               <a href="https://github.com/DELINSHABU" className="social-link" target="_blank" rel="noopener noreferrer">
                 <i className="fab fa-github"></i>
               </a>
-              <a href="https://linkedin.com" className="social-link" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.linkedin.com/in/delindev/" className="social-link" target="_blank" rel="noopener noreferrer">
                 <i className="fab fa-linkedin"></i>
               </a>
-              <a href="https://twitter.com" className="social-link" target="_blank" rel="noopener noreferrer">
-                <i className="fab fa-twitter"></i>
+              <a href="https://x.com/Delin_dev" className="social-link x-logo" target="_blank" rel="noopener noreferrer">
+                <img src={xLogo} alt="X" className="x-icon" />
               </a>
             </div>
           </motion.div>

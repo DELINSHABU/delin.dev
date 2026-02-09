@@ -137,9 +137,20 @@
 .social-link {
   font-size: 1.5rem;
   color: inherit;
+  text-decoration: none;
   transition: transform 0.3s ease;
 }
 
 .social-link:hover {
   transform: translateY(-0.2rem);
+}
+
+.x-icon {
+  width: 1.3rem;
+  height: 1.3rem;
+  filter: invert(0);
+}
+
+.home.light .x-icon {
+  filter: invert(1);
 }

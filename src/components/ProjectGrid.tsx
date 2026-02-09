@@ -9,13 +9,20 @@ interface ProjectCardProps {
   title: string;
   description: string;
   imageUrl?: string;
+  link: string;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageUrl }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageUrl, link }) => {
+  const handleClick = () => {
+    window.open(link, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <motion.div 
       className="project-card"
       variants={fadeInUp}
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }}
       whileHover={{
         y: -10,
         scale: 1.02,
@@ -53,28 +60,32 @@ const ProjectGrid: React.FC = () => {
 
   const projects = [
     {
-      id: "project-one",
-      title: "E-Commerce Platform",
-      description: "A full-stack e-commerce solution with React.js and Node.js",
-      imageUrl: "/project1.jpg"
+      id: "bloom-cafe-pos",
+      title: "Bloom Cafe POS",
+      description: "Full-stack Point of Sale application for cafe management",
+      imageUrl: new URL('../Screenshots/BloomCafePOS.png', import.meta.url).href,
+      link: "https://github.com/DELINSHABU/BloomCafePOS"
     },
     {
-      id: "project-two",
-      title: "Task Management App",
-      description: "Real-time task management with full-stack capabilities",
-      imageUrl: "/project2.jpg"
+      id: "stylewav-ecommerce",
+      title: "StyleWav E-Commerce",
+      description: "Modern e-commerce platform built with MERN stack",
+      imageUrl: new URL('../Screenshots/StyleWavE-Commerce.png', import.meta.url).href,
+      link: "https://github.com/DELINSHABU/StyleWav"
     },
     {
-      id: "project-three",
-      title: "Portfolio Website",
-      description: "Modern UI/UX Design with React and TypeScript",
-      imageUrl: "/project3.jpg"
+      id: "job-tracker",
+      title: "Job Applying Tracker",
+      description: "Track and manage job applications efficiently",
+      imageUrl: new URL('../Screenshots/JobApplyingTracker.png', import.meta.url).href,
+      link: "https://github.com/DELINSHABU/Job-Applying-Tracker"
     },
     {
-      id: "project-four",
-      title: "Mobile Chat App",
-      description: "React Native application with Firebase backend",
-      imageUrl: "/project4.jpg"
+      id: "anomaly-design-studio",
+      title: "Anomaly Design Studio",
+      description: "Portfolio website for an architecture and interior design studio",
+      imageUrl: new URL('../Screenshots/AnomalyDesignStudio.png', import.meta.url).href,
+      link: "https://anomalydesignstudio.com/"
     }
   ];
 
