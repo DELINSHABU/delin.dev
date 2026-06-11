@@ -32,6 +32,21 @@
   gap: var(--sp-4);
 }
 
+a.contact-link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+a.contact-link:hover {
+  transform: translateX(5px);
+}
+
+a.contact-link:hover .contact-icon {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
 .contact-icon {
   width: 40px;
   height: 40px;

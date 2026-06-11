@@ -7,7 +7,7 @@
 | ----------------- |
 | ![Site Preview](src/desgin/ScreenshotOfWebsite.png) |
 
-[site]: https://your-live-site-url.com
+[site]: https://delindev-893de.web.app
 
 
 ## Key Features
@@ -62,11 +62,32 @@ npm run eject      # Eject from CRA (one-way operation)
 npm install        # Install dependencies
 ```
 
+### Deployment
+```bash
+npm run build      # Build for production
+firebase deploy    # Deploy to Firebase Hosting (requires Firebase CLI)
+```
+
 ## Key Configuration
 - **TypeScript**: Strict mode, JSX transform, ES5 target
 - **Browser Support**: Modern browsers, >0.2% usage
 - **CSS**: Global styles with CSS custom properties for theming
 - **Font**: JetBrains Mono monospace font family
+
+## Hosting & Deployment
+- **Firebase Hosting** - Static site hosting
+- **GitHub Actions** - Automated CI/CD pipeline
+- **Auto-deployment** - Pushes to main branch automatically deploy to production
+- **Preview Deployments** - Pull requests generate preview URLs for testing
+
+### CI/CD Workflows
+- **Production Deployment**: Triggered on push to `main` branch
+  - Builds the application
+  - Deploys to Firebase Hosting live channel
+- **Preview Deployment**: Triggered on pull requests
+  - Builds the application
+  - Creates temporary preview URL for review
+  - Automatically comments preview URL on PR
 # Project Structure
 
 ## Root Level

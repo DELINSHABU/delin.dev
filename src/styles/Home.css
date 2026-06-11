@@ -84,3 +84,13 @@
     align-items: flex-start;
   }
 }
+
+.x-icon {
+  width: 1.3rem;
+  height: 1.3rem;
+  filter: invert(0);
+}
+
+.home.light .x-icon {
+  filter: invert(1);
+}
