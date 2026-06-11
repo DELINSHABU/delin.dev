@@ -1,96 +1,129 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
+import { AdminProvider } from './context/AdminContext';
+import { SmoothScrollProvider, useLenis } from './lib/SmoothScrollProvider';
+import TerminalBackground from './components/background/TerminalBackground';
 import Home from './pages/Home';
 import About from './pages/About';
 import Projects from './pages/Projects';
 import Contact from './pages/Contact';
+import ProjectDetails from './pages/ProjectDetails';
+import AdminPage from './pages/admin/AdminPage';
 import Header from './components/Header';
-import ParallaxBackground from './components/ParallaxBackground';
 import ScrollProgress from './components/ScrollProgress';
 import './styles/App.css';
 
-function AppContent() {
-  const { theme } = useTheme();
-  
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  };
+const pageVariants = {
+  initial: { opacity: 0, y: 16, filter: 'blur(4px)' },
+  animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
+  exit: { opacity: 0, y: -16, filter: 'blur(4px)' },
+};
 
-  const pageTransition = {
-    duration: 0.6,
-    type: "tween" as const
-  };
+const pageTransition = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
 
+function PageWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div 
-      className={`app ${theme}`}
+    <motion.div
+      variants={pageVariants}
       initial="initial"
       animate="animate"
-      variants={pageVariants}
+      exit="exit"
       transition={pageTransition}
     >
-      <ScrollProgress />
-      <Header />
-      <main>
-        <ParallaxBackground offset={30}>
-          <motion.section 
-            id="home"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-          >
-            <Home />
-          </motion.section>
-        </ParallaxBackground>
-
-        <ParallaxBackground offset={-20}>
-          <motion.section 
-            id="about"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          >
-            <About />
-          </motion.section>
-        </ParallaxBackground>
-
-        <ParallaxBackground offset={40}>
-          <motion.section 
-            id="projects"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <Projects />
-          </motion.section>
-        </ParallaxBackground>
-
-        <ParallaxBackground offset={-30}>
-          <motion.section 
-            id="contact"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <Contact />
-          </motion.section>
-        </ParallaxBackground>
-      </main>
+      {children}
     </motion.div>
+  );
+}
+
+function MainPage() {
+  return (
+    <PageWrapper>
+      <main>
+        <section id="home">
+          <Home />
+        </section>
+        <section id="about">
+          <About />
+        </section>
+        <section id="projects">
+          <Projects />
+        </section>
+        <section id="contact">
+          <Contact />
+        </section>
+      </main>
+    </PageWrapper>
+  );
+}
+
+function AppRoutes() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const lenis = useLenis();
+  const isAdmin = location.pathname === '/admin';
+  const isMainPage = location.pathname === '/';
+
+  // Ctrl+Shift+A toggles the admin panel
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        navigate(location.pathname === '/admin' ? '/' : '/admin');
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [navigate, location.pathname]);
+
+  // pause smooth scrolling while the admin overlay is open
+  useEffect(() => {
+    if (!lenis) return;
+    if (isAdmin) lenis.stop();
+    else lenis.start();
+  }, [lenis, isAdmin]);
+
+  return (
+    <>
+      {isMainPage && <ScrollProgress />}
+      {isMainPage && <Header />}
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<MainPage />} />
+          <Route
+            path="/project/:slug"
+            element={
+              <PageWrapper>
+                <ProjectDetails />
+              </PageWrapper>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PageWrapper>
+                <AdminPage />
+              </PageWrapper>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
+    </>
   );
 }
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <MotionConfig reducedMotion="user">
+      <AdminProvider>
+        <SmoothScrollProvider>
+          <div className="app">
+            <TerminalBackground />
+            <AppRoutes />
+          </div>
+        </SmoothScrollProvider>
+      </AdminProvider>
+    </MotionConfig>
   );
 }
 

@@ -1,100 +1,71 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useScrollAnimation } from '../hooks/useScrollAnimation';
-import { fadeInUp, staggerContainer } from '../utils/animations';
+import { projects, Project } from '../data/projects';
+import { revealBlur, staggerContainer } from '../utils/animations';
 import '../styles/ProjectGrid.css';
 
-interface ProjectCardProps {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl?: string;
-}
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageUrl }) => {
+  // pointer-tracked radial border glow via CSS vars
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+    card.style.setProperty('--my', `${event.clientY - rect.top}px`);
+  };
+
   return (
-    <motion.div 
-      className="project-card"
-      variants={fadeInUp}
-      whileHover={{
-        y: -10,
-        scale: 1.02,
-        boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-        transition: { duration: 0.3 }
-      }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <motion.div className="project-content">
-        {imageUrl && (
-          <motion.img 
-            src={imageUrl} 
-            alt={title} 
-            className="project-image"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-        <motion.div 
-          className="project-info"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+    <motion.div variants={revealBlur}>
+      <Link to={`/project/${project.slug}`} className="project-card-link">
+        <div
+          ref={cardRef}
+          className="terminal-window project-card"
+          onPointerMove={handlePointerMove}
         >
-          <h3>{title}</h3>
-          <p>{description}</p>
-        </motion.div>
-      </motion.div>
+          <div className="project-card__glow" aria-hidden="true" />
+          <div className="terminal-window__bar">
+            <span className="dot dot--red" />
+            <span className="dot dot--yellow" />
+            <span className="dot dot--green" />
+            <span className="terminal-window__title">
+              ~/projects/{project.slug}
+            </span>
+          </div>
+          <div className="terminal-window__body project-card__body">
+            <h3 className="project-card__title">{project.title}</h3>
+            <p className="project-card__tagline">{project.tagline}</p>
+            <div className="project-card__stack">
+              {project.stack.map((tech) => (
+                <span key={tech} className="stack-chip">
+                  [{tech}]
+                </span>
+              ))}
+            </div>
+            <span className="project-card__open">
+              open <span className="link-arrow">→</span>
+            </span>
+          </div>
+        </div>
+      </Link>
     </motion.div>
   );
 };
 
-const ProjectGrid: React.FC = () => {
-  const { ref, isInView } = useScrollAnimation();
-
-  const projects = [
-    {
-      id: "project-one",
-      title: "E-Commerce Platform",
-      description: "A full-stack e-commerce solution with React.js and Node.js",
-      imageUrl: "/project1.jpg"
-    },
-    {
-      id: "project-two",
-      title: "Task Management App",
-      description: "Real-time task management with full-stack capabilities",
-      imageUrl: "/project2.jpg"
-    },
-    {
-      id: "project-three",
-      title: "Portfolio Website",
-      description: "Modern UI/UX Design with React and TypeScript",
-      imageUrl: "/project3.jpg"
-    },
-    {
-      id: "project-four",
-      title: "Mobile Chat App",
-      description: "React Native application with Firebase backend",
-      imageUrl: "/project4.jpg"
-    }
-  ];
-
-  return (
-    <section className="projects-section" id="projects">
-      <motion.div 
-        ref={ref}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        variants={staggerContainer}
-      >
-        {/* <motion.h2 variants={fadeInUp}>My Projects</motion.h2> */}
-        <motion.div className="projects-grid" variants={staggerContainer}>
-          {projects.map((project) => (
-            <ProjectCard key={project.id} {...project} />
-          ))}
-        </motion.div>
-      </motion.div>
-    </section>
-  );
-};
+const ProjectGrid: React.FC = () => (
+  <motion.div
+    className="projects-grid"
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, amount: 0.1 }}
+    variants={staggerContainer}
+  >
+    {projects.map((project) => (
+      <ProjectCard key={project.slug} project={project} />
+    ))}
+  </motion.div>
+);
 
 export default ProjectGrid;

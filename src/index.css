@@ -1,17 +1,60 @@
+@import './styles/tokens.css';
+@import './styles/terminal.css';
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'JetBrains Mono', monospace;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
-  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-mono);
+  background-color: var(--bg-base);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+::selection {
+  background: var(--accent);
+  color: var(--bg-base);
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* thin terminal scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

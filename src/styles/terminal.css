@@ -1,0 +1,125 @@
+/* Shared terminal UI primitives: windows, prompts, buttons, chips */
+
+.terminal-window {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+.terminal-window__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal-window__title {
+  margin-left: var(--sp-2);
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot--red { background: var(--danger); }
+.dot--yellow { background: var(--warning); }
+.dot--green { background: var(--success); }
+
+.terminal-window__body {
+  padding: var(--sp-6);
+}
+
+/* prompt text */
+.prompt-symbol {
+  color: var(--success);
+}
+
+.prompt-line {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+}
+
+.error-line {
+  color: var(--danger);
+  font-size: var(--fs-small);
+  margin: var(--sp-3) 0;
+}
+
+/* terminal-styled buttons: [ ./action ] */
+.terminal-button {
+  display: inline-block;
+  padding: var(--sp-3) var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.terminal-button:hover {
+  border-color: var(--border-accent);
+  color: var(--accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.terminal-button--primary {
+  border-color: var(--border-accent);
+  color: var(--accent);
+  background: var(--glow-soft);
+}
+
+.terminal-button--primary:hover {
+  background: rgba(94, 162, 255, 0.16);
+}
+
+/* stack chips: [react] */
+.stack-chip {
+  display: inline-block;
+  font-size: var(--fs-micro);
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+/* inline terminal links */
+.terminal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: var(--fs-small);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.terminal-link:hover {
+  color: var(--accent);
+}
+
+.link-arrow {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.terminal-link:hover .link-arrow {
+  transform: translateX(4px);
+}

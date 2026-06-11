@@ -122,3 +122,9 @@ npm install        # Install dependencies
 - Relative imports for local files: `'../context/ThemeContext'`
 - Absolute imports from `src/`: Not configured, use relative paths
 - External libraries: Standard npm imports
+## Deployment note
+
+The site uses client-side routing (`/project/:slug`, `/admin`). When deploying
+to a static host, configure a SPA fallback so all paths rewrite to
+`index.html` (Netlify: `public/_redirects` with `/* /index.html 200`;
+Vercel: `rewrites` in `vercel.json`; GitHub Pages needs a 404.html copy).

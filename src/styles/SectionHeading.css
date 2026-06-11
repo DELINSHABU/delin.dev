@@ -1,0 +1,24 @@
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--sp-12);
+}
+
+.section-heading__comment {
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.section-heading__index {
+  color: var(--text-muted);
+  font-size: 0.6em;
+  font-weight: 400;
+}
+
+.section-heading__label {
+  color: var(--text);
+}

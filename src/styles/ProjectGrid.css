@@ -1,102 +1,124 @@
-.page {
-    min-height: 100vh;
-    padding: 0 clamp(1rem, 4vw, 4rem) 0 clamp(2rem, 8vw, 8rem);
-    transition: all 0.3s ease;
-}
-
-.page.light {
-    color: #1a1a1a;
-}
-
-.page.dark {
-    color: #ffffff;
-}
-
-.projects-section {
-    padding: 2rem;
-}
-
-.section-title {
-    font-size: 5rem;
-    color: var(--text-color);
-    margin-bottom: 1rem;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    font-weight: 700;
-}
-
-.page.dark .section-title {
-    color: #4a90e2;
-    text-shadow: 0 0 10px rgba(74, 144, 226, 0.5), 0 0 20px rgba(74, 144, 226, 0.3);
-}
-
-.page.light .section-title {
-    color: #3a7bc8;
-    text-shadow: 0 0 10px rgba(58, 123, 200, 0.3);
+.projects-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: var(--sp-12);
 }
 
 .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--sp-6);
+}
+
+.project-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
 }
 
 .project-card {
-    text-decoration: none;
-    color: inherit;
-    background: var(--background-secondary);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
 }
 
 .project-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--border-accent);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
 }
 
-.project-content {
-    display: flex;
-    flex-direction: column;
+/* pointer-tracked radial glow (driven by --mx/--my from JS) */
+.project-card__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 50%),
+    var(--glow-soft),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  pointer-events: none;
+  z-index: 0;
 }
 
-.project-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.project-card:hover .project-card__glow {
+  opacity: 1;
 }
 
-.project-info {
-    padding: 1.5rem;
+/* screen-sheen sweep on hover */
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(233, 237, 242, 0.045) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
 }
 
-.project-info h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.2rem;
-    color: var(--text-color);
+.project-card:hover::after {
+  transition: transform 0.9s var(--ease-out);
+  transform: translateX(100%);
 }
 
-.project-info p {
-    margin: 0;
-    color: var(--text-secondary);
-    line-height: 1.5;
+.project-card__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  flex: 1;
 }
 
-/* Dark mode styles */
-.dark .project-card {
-    background-color: #2a2a2a;
+.project-card__title {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-/* Responsive design */
+.project-card__tagline {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.project-card__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.project-card__open {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.project-card:hover .project-card__open {
+  color: var(--accent);
+}
+
+.project-card:hover .project-card__open .link-arrow {
+  transform: translateX(4px);
+}
+
 @media (max-width: 768px) {
-    .projects-grid {
-        grid-template-columns: 1fr;
-        padding: 1rem;
-    }
-
-    .projects-section {
-        padding: 1rem;
-    }
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
 }
