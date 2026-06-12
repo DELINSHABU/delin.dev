@@ -4,6 +4,7 @@ import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import { AdminProvider } from './context/AdminContext';
 import { SmoothScrollProvider, useLenis } from './lib/SmoothScrollProvider';
 import TerminalBackground from './components/background/TerminalBackground';
+import CustomCursor from './components/CustomCursor';
 import Home from './pages/Home';
 import About from './pages/About';
 import Projects from './pages/Projects';
@@ -12,6 +13,7 @@ import ProjectDetails from './pages/ProjectDetails';
 import AdminPage from './pages/admin/AdminPage';
 import Header from './components/Header';
 import ScrollProgress from './components/ScrollProgress';
+import Terminal from './components/terminal/Terminal';
 import './styles/App.css';
 
 const pageVariants = {
@@ -118,8 +120,10 @@ function App() {
       <AdminProvider>
         <SmoothScrollProvider>
           <div className="app">
+            <CustomCursor />
             <TerminalBackground />
             <AppRoutes />
+            <Terminal />
           </div>
         </SmoothScrollProvider>
       </AdminProvider>

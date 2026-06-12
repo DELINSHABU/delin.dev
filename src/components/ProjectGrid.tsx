@@ -8,22 +8,37 @@ import '../styles/ProjectGrid.css';
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // pointer-tracked radial border glow via CSS vars
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const card = cardRef.current;
     if (!card) return;
     const rect = card.getBoundingClientRect();
-    card.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-    card.style.setProperty('--my', `${event.clientY - rect.top}px`);
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    card.style.setProperty('--mx', `${x}px`);
+    card.style.setProperty('--my', `${y}px`);
+    card.style.setProperty('--tx', `${((x / rect.width) - 0.5) * 2}`);
+    card.style.setProperty('--ty', `${((y / rect.height) - 0.5) * 2}`);
+  };
+
+  const handlePointerLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.setProperty('--tx', '0');
+    card.style.setProperty('--ty', '0');
   };
 
   return (
     <motion.div variants={revealBlur}>
-      <Link to={`/project/${project.slug}`} className="project-card-link">
+      <Link
+        to={`/project/${project.slug}`}
+        className="project-card-link"
+        data-cursor="hover"
+      >
         <div
           ref={cardRef}
           className="terminal-window project-card"
           onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
         >
           <div className="project-card__glow" aria-hidden="true" />
           <div className="terminal-window__bar">
@@ -34,6 +49,11 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
               ~/projects/{project.slug}
             </span>
           </div>
+          {project.screenshot && (
+            <div className="project-card__preview" aria-hidden="true">
+              <img src={project.screenshot} alt="" loading="lazy" />
+            </div>
+          )}
           <div className="terminal-window__body project-card__body">
             <h3 className="project-card__title">{project.title}</h3>
             <p className="project-card__tagline">{project.tagline}</p>

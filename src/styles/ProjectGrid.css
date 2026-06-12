@@ -23,12 +23,34 @@
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  transition:
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    transform 0.12s var(--ease-out);
+}
+
+/* 3D tilt — only on fine pointer with motion enabled */
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+  .project-card {
+    transform:
+      perspective(800px)
+      rotateY(calc(var(--tx, 0) * 6deg))
+      rotateX(calc(var(--ty, 0) * -5deg))
+      translateY(var(--lift, 0px));
+  }
 }
 
 .project-card:hover {
+  --lift: -6px;
   border-color: var(--border-accent);
-  transform: translateY(-6px);
   box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+/* reduced-motion fallback: simple lift */
+@media (prefers-reduced-motion: reduce) {
+  .project-card:hover {
+    transform: translateY(-6px);
+  }
 }
 
 /* pointer-tracked radial glow (driven by --mx/--my from JS) */
@@ -64,11 +86,40 @@
   );
   transform: translateX(-100%);
   pointer-events: none;
+  z-index: 2;
 }
 
 .project-card:hover::after {
   transition: transform 0.9s var(--ease-out);
   transform: translateX(100%);
+}
+
+/* screenshot preview panel */
+.project-card__preview {
+  overflow: hidden;
+  height: 180px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.project-card__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transform: scale(1.04);
+  transition:
+    transform 0.7s var(--ease-out),
+    filter 0.4s var(--ease-out);
+  filter: brightness(0.7) saturate(0.6);
+  display: block;
+}
+
+.project-card:hover .project-card__preview img {
+  transform: scale(1.0);
+  filter: brightness(0.9) saturate(1);
 }
 
 .project-card__body {

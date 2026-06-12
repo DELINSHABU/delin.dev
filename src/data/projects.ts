@@ -1,3 +1,8 @@
+import styleWaveImg from '../Screenshots/StyleWavE-Commerce.png';
+import jobImg from '../Screenshots/JobApplyingTracker.png';
+import anomalyImg from '../Screenshots/AnomalyDesignStudio.png';
+import bloomImg from '../Screenshots/BloomCafePOS.png';
+
 export interface Project {
   slug: string;
   title: string;
@@ -6,6 +11,7 @@ export interface Project {
   stack: string[];
   features: string[];
   challenges: string[];
+  screenshot?: string;
   liveLink?: string;
   githubLink?: string;
 }
@@ -18,6 +24,7 @@ export const projects: Project[] = [
     description:
       "A full-stack e-commerce solution with React.js and MongoDB. Features include real-time inventory management, secure payment processing, and an admin dashboard that doesn't make you want to throw your laptop out the window.",
     stack: ['react', 'node', 'mongodb', 'typescript'],
+    screenshot: styleWaveImg,
     features: [
       'User authentication and authorization',
       'Product catalog with search and filtering',
@@ -40,6 +47,7 @@ export const projects: Project[] = [
     description:
       'A collaborative task management application that allows teams to organize, track, and manage their projects effectively. Features real-time updates and intuitive UI.',
     stack: ['react', 'firebase', 'redux', 'scss'],
+    screenshot: jobImg,
     features: [
       'Real-time collaboration',
       'Task assignment and tracking',
@@ -62,6 +70,7 @@ export const projects: Project[] = [
     description:
       'A modern portfolio website built with React and TypeScript. Features a terminal-inspired design with shader-driven backgrounds, smooth scrolling, and interactive WebGL elements.',
     stack: ['react', 'typescript', 'three.js', 'framer-motion'],
+    screenshot: anomalyImg,
     features: [
       'Shader-based layered background',
       'WebGL hero text distortion',
@@ -84,6 +93,7 @@ export const projects: Project[] = [
     description:
       'A cross-platform mobile chat application built with React Native and Firebase. Features real-time messaging, file sharing, and user presence system.',
     stack: ['react-native', 'firebase', 'typescript', 'redux'],
+    screenshot: bloomImg,
     features: [
       'Real-time messaging',
       'File sharing',

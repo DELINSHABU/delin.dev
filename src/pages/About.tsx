@@ -10,79 +10,15 @@ import {
 } from 'framer-motion';
 import SectionHeading from '../components/SectionHeading';
 import { revealBlur, fadeInLeft, fadeInRight, staggerContainer } from '../utils/animations';
+import {
+  about as ABOUT_PARAGRAPHS,
+  skills as SKILLS,
+  journey as JOURNEY,
+  stats as STATS,
+  type SkillItem,
+} from '../data/profile';
+import { useParallax } from '../hooks/useParallax';
 import '../styles/About.css';
-
-const SKILLS = [
-  {
-    category: 'frontend',
-    items: ['React', 'TypeScript', 'Next.js', 'HTML5/CSS3', 'Modern UI/UX'],
-  },
-  {
-    category: 'backend',
-    items: ['Node.js', 'Express', 'MongoDB', 'REST APIs', 'Python'],
-  },
-  {
-    category: 'ai-tools',
-    items: [
-      'Prompt Engineering',
-      'AI Integration',
-      'Git & Version Control',
-      'VS Code',
-      'Docker',
-      'Automation Tools',
-    ],
-  },
-  {
-    category: 'languages',
-    items: [
-      'JavaScript/TypeScript',
-      'Python',
-      'C++',
-      'Java',
-      'Lua',
-      'Brainfuck (for the culture)',
-    ],
-  },
-  {
-    category: 'soft-skills',
-    items: [
-      'Problem Solving',
-      'Team Collaboration',
-      'Communication',
-      'Adaptability',
-      'AI Whispering',
-    ],
-  },
-];
-
-const JOURNEY = [
-  {
-    year: '2023 — present',
-    title: 'Freelance Developer',
-    body: 'Working on various projects for clients worldwide, specializing in web applications and e-commerce solutions. Currently building the foundation for my AI-powered SaaS empire.',
-  },
-  {
-    year: '2024 — 2025',
-    title: 'Associate at Sutherland',
-    body: 'Mastered the art of international voice processes while secretly coding at night. Learned that talking to humans is harder than talking to computers.',
-  },
-  {
-    year: '2023',
-    title: 'Intern at Brototype',
-    body: 'Started my professional journey, working on full-stack applications and learning from experienced developers. Discovered that CSS is indeed a programming language (fight me).',
-  },
-  {
-    year: '2020 — 2021',
-    title: 'Self-Learning Era',
-    body: 'Dedicated time to learning modern web technologies and building personal projects. The era of "Hello World" in 47 different programming languages.',
-  },
-];
-
-const STATS = [
-  { value: 2, suffix: '+', label: 'years experience' },
-  { value: 15, suffix: '+', label: 'projects completed' },
-  { value: 10, suffix: '+', label: 'happy clients' },
-];
 
 const StatCard: React.FC<{ value: number; suffix: string; label: string }> = ({
   value,
@@ -112,6 +48,30 @@ const StatCard: React.FC<{ value: number; suffix: string; label: string }> = ({
   );
 };
 
+const SkillBar: React.FC<SkillItem> = ({ name, level }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-5% 0px' });
+
+  return (
+    <div ref={ref} className="skill-bar-row">
+      <div className="skill-bar-label">
+        <span className="pane-bullet">▸</span>
+        <span>{name}</span>
+        <span className="skill-bar-pct">{level}%</span>
+      </div>
+      <div className="skill-bar-track">
+        <motion.div
+          className="skill-bar-fill"
+          initial={{ scaleX: 0 }}
+          animate={inView ? { scaleX: level / 100 } : { scaleX: 0 }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          style={{ transformOrigin: 'left' }}
+        />
+      </div>
+    </div>
+  );
+};
+
 const About: React.FC = () => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -119,6 +79,7 @@ const About: React.FC = () => {
     offset: ['start 85%', 'end 55%'],
   });
   const lineScale = useSpring(scrollYProgress, { stiffness: 80, damping: 24 });
+  const statsParallax = useParallax(0.08);
 
   return (
     <div className="about-page">
@@ -143,34 +104,24 @@ const About: React.FC = () => {
               <p className="prompt-line">
                 <span className="prompt-symbol">$</span> cat about.md
               </p>
-              <p className="about-description">
-                I'm a full-stack developer with a passion for creating elegant
-                solutions to complex problems. My journey in tech started with
-                curiosity about how things work, and that curiosity continues
-                to drive me today.
-              </p>
-              <p className="about-description">
-                Currently riding the AI wave (fashionably late, as always) to
-                build the next generation of SaaS solutions. I believe AI isn't
-                here to replace us—it's here to make us ridiculously efficient.
-                Why hire 50 people when you can hire 5 smart ones with the
-                right AI tools?
-              </p>
-              <p className="about-description">
-                When I'm not busy convincing computers to do my bidding, you'll
-                find me exploring new technologies, writing code in languages
-                most people can't pronounce (yes, Brainfuck is a real
-                language), or planning my next SaaS venture that'll hopefully
-                require fewer humans than a space mission.
-              </p>
+              {ABOUT_PARAGRAPHS.map((paragraph, index) => (
+                <p key={index} className="about-description">
+                  {paragraph}
+                </p>
+              ))}
             </div>
           </motion.div>
 
-          <div className="stats">
+          <motion.div
+            ref={statsParallax.ref}
+            style={{ y: statsParallax.y }}
+            className="stats"
+            variants={staggerContainer}
+          >
             {STATS.map((stat) => (
               <StatCard key={stat.label} {...stat} />
             ))}
-          </div>
+          </motion.div>
         </motion.div>
 
         <motion.div
@@ -198,13 +149,11 @@ const About: React.FC = () => {
                     ~/skills/{skillSet.category}
                   </span>
                 </div>
-                <ul className="terminal-window__body skill-list">
+                <div className="terminal-window__body skill-bar-list">
                   {skillSet.items.map((skill) => (
-                    <li key={skill}>
-                      <span className="pane-bullet">▸</span> {skill}
-                    </li>
+                    <SkillBar key={skill.name} {...skill} />
                   ))}
-                </ul>
+                </div>
               </motion.div>
             ))}
           </div>

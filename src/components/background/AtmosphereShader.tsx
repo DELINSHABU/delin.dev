@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import React, { useMemo, useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import type { MotionValue } from 'framer-motion';
 import * as THREE from 'three';
 
 const vertexShader = `
@@ -19,6 +20,8 @@ uniform vec2 uMouse;
 uniform vec3 uBase;
 uniform vec3 uAccent;
 uniform float uIntensity;
+uniform float uScroll;
+uniform float uScrollVel;
 
 varying vec2 vUv;
 
@@ -89,10 +92,12 @@ float dither4x4(vec2 position, float brightness) {
 void main() {
   vec2 uv = vUv;
 
-  // slow drifting 2-octave noise field
-  vec2 drift = vec2(uTime * 0.018, uTime * 0.012);
+  // slow drifting 2-octave noise field; scroll travels through it vertically,
+  // with the second octave counter-drifting for inter-octave parallax
+  float travel = uScroll * 1.4;
+  vec2 drift = vec2(uTime * 0.018, uTime * 0.012 + travel);
   float n1 = cnoise(uv * 2.4 + drift);
-  float n2 = cnoise(uv * 5.1 - drift * 1.6);
+  float n2 = cnoise(uv * 5.1 - drift * 1.6 + vec2(0.0, travel * 0.6));
   float noise = n1 * 0.65 + n2 * 0.35;
   noise = noise * 0.5 + 0.5;
 
@@ -101,21 +106,36 @@ void main() {
   float dithered = dither4x4(gl_FragCoord.xy, noise);
   float field = mix(quantized, dithered, 0.4);
 
-  vec3 color = mix(uBase, uAccent, field * noise * uIntensity);
+  float intensity = uIntensity * (1.0 + uScroll * 0.35 + uScrollVel * 0.5);
+  vec3 color = mix(uBase, uAccent, field * noise * intensity);
 
   // faint mouse proximity glow
   float mouseDist = distance(uv, uMouse);
   float mouseEffect = 1.0 - smoothstep(0.0, 0.45, mouseDist);
   color += uAccent * mouseEffect * 0.05;
 
-  // vignette
-  color *= smoothstep(1.05, 0.35, length(vUv - 0.5) * 1.4);
+  // vignette, tightening slightly with scroll depth
+  color *= smoothstep(1.05 - uScroll * 0.08, 0.35, length(vUv - 0.5) * 1.4);
 
   gl_FragColor = vec4(color, 1.0);
 }
 `;
 
-const AtmospherePlane: React.FC = () => {
+// per-section accent tint: home / about / projects / contact
+const ACCENT_STOPS = ['#5ea2ff', '#54d8e8', '#9a7cff', '#63e6a4'].map(
+  (c) => new THREE.Color(c)
+);
+const tmpAccent = new THREE.Color();
+
+interface AtmospherePlaneProps {
+  scrollProgress: MotionValue<number>;
+  scrollVelocity: MotionValue<number>;
+}
+
+const AtmospherePlane: React.FC<AtmospherePlaneProps> = ({
+  scrollProgress,
+  scrollVelocity,
+}) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null!);
   const { viewport } = useThree();
   const mousePos = useRef(new THREE.Vector2(0.5, 0.5));
@@ -127,6 +147,8 @@ const AtmospherePlane: React.FC = () => {
       uBase: { value: new THREE.Color('#0a0b0e') },
       uAccent: { value: new THREE.Color('#5ea2ff') },
       uIntensity: { value: 0.14 },
+      uScroll: { value: 0 },
+      uScrollVel: { value: 0 },
     }),
     []
   );
@@ -144,11 +166,25 @@ const AtmospherePlane: React.FC = () => {
 
   useFrame((state) => {
     if (!materialRef.current) return;
-    materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-    (materialRef.current.uniforms.uMouse.value as THREE.Vector2).lerp(
-      mousePos.current,
-      0.06
+    const u = materialRef.current.uniforms;
+    u.uTime.value = state.clock.elapsedTime;
+    (u.uMouse.value as THREE.Vector2).lerp(mousePos.current, 0.06);
+    // the shader is the farthest layer, so it trails the scroll slightly
+    u.uScroll.value = THREE.MathUtils.lerp(
+      u.uScroll.value,
+      scrollProgress.get(),
+      0.08
     );
+    u.uScrollVel.value = THREE.MathUtils.lerp(
+      u.uScrollVel.value,
+      scrollVelocity.get(),
+      0.1
+    );
+
+    const p = THREE.MathUtils.clamp(scrollProgress.get(), 0, 1);
+    const seg = Math.min(Math.floor(p * 3), 2);
+    tmpAccent.copy(ACCENT_STOPS[seg]).lerp(ACCENT_STOPS[seg + 1], p * 3 - seg);
+    (u.uAccent.value as THREE.Color).lerp(tmpAccent, 0.05);
   });
 
   return (
@@ -166,9 +202,15 @@ const AtmospherePlane: React.FC = () => {
 
 interface AtmosphereShaderProps {
   reducedMotion: boolean;
+  scrollProgress: MotionValue<number>;
+  scrollVelocity: MotionValue<number>;
 }
 
-const AtmosphereShader: React.FC<AtmosphereShaderProps> = ({ reducedMotion }) => {
+const AtmosphereShader: React.FC<AtmosphereShaderProps> = ({
+  reducedMotion,
+  scrollProgress,
+  scrollVelocity,
+}) => {
   const isSmallScreen =
     typeof window !== 'undefined' && window.innerWidth < 768;
 
@@ -183,7 +225,10 @@ const AtmosphereShader: React.FC<AtmosphereShaderProps> = ({ reducedMotion }) =>
       }}
       aria-hidden="true"
     >
-      <AtmospherePlane />
+      <AtmospherePlane
+        scrollProgress={scrollProgress}
+        scrollVelocity={scrollVelocity}
+      />
     </Canvas>
   );
 };

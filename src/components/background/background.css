@@ -74,12 +74,6 @@
   transform: rotateX(62deg);
   transform-origin: top center;
   opacity: 0.55;
-  animation: grid-flow 14s linear infinite;
-}
-
-@keyframes grid-flow {
-  from { background-position: 0 0; }
-  to { background-position: 0 56px; }
 }
 
 /* soft radial accent glow that parallaxes with the mouse */
@@ -92,8 +86,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .terminal-bg__grain,
-  .terminal-bg__grid {
+  .terminal-bg__grain {
     animation: none;
   }
 }

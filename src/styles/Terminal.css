@@ -1,0 +1,442 @@
+/* ============================================================
+   Interactive portfolio terminal — launcher, window, output
+   Built on the shared tokens in tokens.css + terminal.css
+   ============================================================ */
+
+/* ---------- floating launcher ---------- */
+.term-launcher {
+  position: fixed;
+  right: var(--sp-6);
+  bottom: var(--sp-6);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.term-launcher__btn {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-accent);
+  background: var(--bg-surface);
+  color: var(--accent);
+  box-shadow: var(--shadow-card), 0 0 0 0 var(--glow);
+  cursor: pointer;
+  transition: box-shadow var(--dur-med) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.term-launcher__btn:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+.term-launcher__glyph {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.term-launcher__hint {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  white-space: nowrap;
+}
+
+.term-launcher__hint kbd {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  border: 1px solid var(--border-accent);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+/* ---------- window shell ---------- */
+.term-window {
+  position: fixed;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  max-width: 100vw;
+  max-height: 100vh;
+  /* clip the title bar / body flush to the window edges (no inner gap) */
+  overflow: hidden;
+}
+
+.term-window--fullscreen {
+  inset: 0;
+  width: 100vw !important;
+  height: 100dvh;
+  border-radius: 0;
+  border: none;
+}
+
+.term-bar {
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+
+.term-window--fullscreen .term-bar {
+  cursor: default;
+}
+
+/* dots become buttons inside the terminal */
+.term-bar .dot {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+}
+
+.term-bar .dot:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
+}
+
+.term-bar__title {
+  margin-left: auto;
+}
+
+/* ---------- scrollback body ---------- */
+.term-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--text);
+  cursor: text;
+}
+
+.term-line {
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.term-echo {
+  margin-top: var(--sp-2);
+}
+
+.term-prompt {
+  color: var(--success);
+  white-space: nowrap;
+}
+
+.term-inputrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5ch;
+  margin-top: var(--sp-1);
+}
+
+.term-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  caret-color: var(--accent);
+}
+
+/* ---------- resize handle ---------- */
+.term-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 0 50%,
+    var(--border-accent) 50% 60%,
+    transparent 60% 75%,
+    var(--border-accent) 75% 85%,
+    transparent 85%
+  );
+  touch-action: none;
+}
+
+/* ---------- output primitives ---------- */
+.term-muted {
+  color: var(--text-muted);
+}
+.term-dim {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+.term-accent {
+  color: var(--accent);
+}
+.term-success {
+  color: var(--success);
+}
+.term-danger {
+  color: var(--danger);
+}
+.term-warning {
+  color: var(--warning);
+}
+.term-error {
+  color: var(--danger);
+}
+
+.term-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: var(--sp-2) 0;
+}
+
+.term-para {
+  max-width: 70ch;
+  line-height: 1.65;
+}
+
+.term-list {
+  list-style: none;
+  padding-left: var(--sp-2);
+}
+
+.term-chips .term-chip,
+.term-chip {
+  color: var(--accent);
+  margin-right: 0.5rem;
+  font-size: var(--fs-micro);
+}
+
+.term-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-1);
+}
+
+.term-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.term-link:hover {
+  text-decoration: underline;
+}
+
+.term-pre {
+  font-family: var(--font-mono);
+  white-space: pre;
+  overflow-x: auto;
+  margin: var(--sp-1) 0;
+  line-height: 1.25;
+  font-size: clamp(0.62rem, 1.6vw, var(--fs-small));
+}
+
+/* ---------- help ---------- */
+.term-help__heading {
+  color: var(--accent);
+  margin-top: var(--sp-3);
+}
+
+.term-help__list {
+  list-style: none;
+  margin-top: var(--sp-1);
+}
+
+.term-help__list li {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: var(--sp-2);
+  align-items: baseline;
+}
+
+/* ---------- projects / journey / tree ---------- */
+.term-projects {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.term-journey {
+  margin-bottom: var(--sp-3);
+}
+
+.term-tree__group {
+  margin-top: var(--sp-2);
+}
+
+.term-tree__group ul {
+  padding-left: var(--sp-4);
+}
+
+.term-history {
+  list-style: none;
+  padding-left: var(--sp-1);
+}
+
+.term-ls {
+  letter-spacing: 0.5px;
+}
+
+/* ---------- neofetch ---------- */
+.term-neofetch {
+  display: flex;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+  margin: var(--sp-2) 0;
+}
+
+.term-neofetch__logo {
+  margin: 0;
+}
+
+.term-neofetch__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.term-neofetch__palette {
+  display: flex;
+  gap: 4px;
+  margin-top: var(--sp-2);
+}
+
+.term-neofetch__palette span {
+  width: 16px;
+  height: 12px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+/* ---------- welcome banner ---------- */
+.term-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+/* ---------- sl train ---------- */
+.term-train-track {
+  overflow: hidden;
+  width: 100%;
+}
+
+.term-train {
+  display: inline-block;
+  color: var(--accent);
+}
+
+.term-train--run {
+  animation: term-train-slide 3.4s linear;
+}
+
+@keyframes term-train-slide {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-160%);
+  }
+}
+
+/* ---------- matrix overlay ---------- */
+.term-matrix {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--bg-base);
+}
+
+.term-matrix__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.term-matrix__hint {
+  position: fixed;
+  bottom: var(--sp-8);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--success);
+  text-shadow: 0 0 8px var(--success);
+}
+
+/* ---------- mobile ---------- */
+@media (max-width: 768px) {
+  .term-launcher {
+    right: var(--sp-4);
+    bottom: calc(60px + var(--sp-4)); /* clear the mobile bottom header */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-train--run {
+    animation: none;
+  }
+}
+
+/* ---------- doom window (play doom) ---------- */
+.doom-window {
+  z-index: 1300; /* above the terminal (1200), below matrix rain (2000) */
+}
+
+.doom-window__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #000;
+}
+
+.doom-window__screen {
+  width: 100%;
+  height: 100%;
+}
+
+/* js-dos mounts its own root inside the screen div — make it fill */
+.doom-window__screen > * {
+  width: 100%;
+  height: 100%;
+}
+
+.doom-window__status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--sp-4);
+  pointer-events: none;
+}

@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll } from 'framer-motion';
 import HeroTitle from '../components/hero/HeroTitle';
+import HeroGeometry from '../components/hero/HeroGeometry';
 import TypewriterText from '../components/TypewriterText';
 import { useScrollToSection } from '../lib/SmoothScrollProvider';
 import { useMagnetic } from '../hooks/useMagnetic';
+import { useParallax } from '../hooks/useParallax';
+import { socials as SOCIAL_LINKS, identity } from '../data/profile';
 import '../styles/Home.css';
-
-const SOCIAL_LINKS = [
-  { href: 'https://github.com/DELINSHABU', icon: 'fab fa-github', label: 'GitHub' },
-  { href: 'https://linkedin.com', icon: 'fab fa-linkedin', label: 'LinkedIn' },
-  { href: 'https://twitter.com', icon: 'fab fa-twitter', label: 'Twitter' },
-];
 
 const MagneticButton: React.FC<{
   children: React.ReactNode;
@@ -26,6 +23,7 @@ const MagneticButton: React.FC<{
       style={magnetic.style}
       onPointerMove={magnetic.onPointerMove}
       onPointerLeave={magnetic.onPointerLeave}
+      data-cursor="hover"
     >
       {children}
     </motion.button>
@@ -35,10 +33,16 @@ const MagneticButton: React.FC<{
 const Home: React.FC = () => {
   const scrollToSection = useScrollToSection();
   const [roleDone, setRoleDone] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const heroParallax = useParallax(0.05);
 
   return (
     <div className="home">
-      <div className="hero-content">
+      <motion.div
+        ref={heroParallax.ref}
+        style={{ y: heroParallax.y }}
+        className="hero-content"
+      >
         <motion.p
           className="prompt-line hero-prompt"
           initial={{ opacity: 0, y: 8 }}
@@ -68,7 +72,7 @@ const Home: React.FC = () => {
         <p className="hero-description">
           <span className="hero-description__caret">&gt;</span>{' '}
           <TypewriterText
-            text="Front-end developer building fast, expressive interfaces with React, TypeScript and a sprinkle of AI magic."
+            text={identity.role}
             speed={22}
             startDelay={1300}
             onComplete={() => setRoleDone(true)}
@@ -105,13 +109,16 @@ const Home: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={link.label}
+                data-cursor="hover"
               >
                 <i className={link.icon} aria-hidden="true"></i>
               </a>
             ))}
           </div>
         </motion.div>
-      </div>
+      </motion.div>
+
+      <HeroGeometry scrollYProgress={scrollYProgress} />
     </div>
   );
 };
