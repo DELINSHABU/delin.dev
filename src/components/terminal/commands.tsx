@@ -45,6 +45,12 @@ export interface CommandContext {
   history: string[];
   listCommands: () => Command[];
   findCommand: (name: string) => Command | undefined;
+  /** Register a callback for the next line of user input. */
+  requestInput: (callback: (value: string) => void, hidden?: boolean) => void;
+  /** Push a line of output from within an input callback chain. */
+  pushLine: (node: React.ReactNode) => void;
+  /** Authenticate against the admin panel credentials. */
+  login: (username: string, password: string) => Promise<boolean>;
 }
 
 export type CommandResult = React.ReactNode;
@@ -844,6 +850,70 @@ export const COMMANDS: Command[] = [
         live yet?”
       </p>
     ),
+  },
+
+  // ---- system / admin ----
+  {
+    name: 'login',
+    group: 'system',
+    summary: 'authenticate to access the admin panel',
+    run: (ctx) => {
+      const { requestInput, pushLine, login, navigate } = ctx;
+
+      const askPassword = (username: string) => {
+        pushLine(
+          React.createElement('p', { className: 'term-muted' }, 'password:')
+        );
+        requestInput(async (password: string) => {
+          const success = await login(username, password);
+          if (success) {
+            pushLine(
+              React.createElement(
+                'p',
+                { className: 'term-success' },
+                '✓ authentication successful — navigating to admin panel…'
+              )
+            );
+            setTimeout(() => navigate('/admin'), 600);
+          } else {
+            pushLine(
+              React.createElement(
+                'p',
+                { className: 'term-error' },
+                '✗ invalid credentials'
+              )
+            );
+          }
+        }, true);
+      };
+
+      const askUsername = () => {
+        requestInput((username: string) => {
+          if (!username.trim()) {
+            pushLine(
+              React.createElement(
+                'p',
+                { className: 'term-warning' },
+                'username cannot be empty.'
+              )
+            );
+            pushLine(
+              React.createElement('p', { className: 'term-muted' }, 'username:')
+            );
+            askUsername();
+            return;
+          }
+          askPassword(username);
+        });
+      };
+
+      askUsername();
+      return React.createElement(
+        'p',
+        { className: 'term-muted' },
+        'username:'
+      );
+    },
   },
 
   // ---- hidden easter eggs ----

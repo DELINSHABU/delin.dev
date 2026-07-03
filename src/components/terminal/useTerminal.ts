@@ -14,6 +14,7 @@ export interface TerminalActions {
   navigate: (to: string) => void;
   scrollToSection: (id: string) => void;
   close: () => void;
+  login: (username: string, password: string) => Promise<boolean>;
 }
 
 interface TermLine {
@@ -98,6 +99,10 @@ export function useTerminal(actions: TerminalActions) {
   const [input, setInput] = useState('');
   const [matrixOn, setMatrixOn] = useState(false);
   const [doomOn, setDoomOn] = useState(false);
+  const [pendingInput, setPendingInput] = useState<{
+    callback: (value: string) => void;
+    hidden: boolean;
+  } | null>(null);
 
   // "busy" = an animated output (hack, sl, rm -rf) is still running, so the
   // input prompt is hidden until it finishes — like a real shell. Tracked by a
@@ -117,6 +122,15 @@ export function useTerminal(actions: TerminalActions) {
         setBusyCount(busyIdsRef.current.size);
       },
     }),
+    []
+  );
+
+  const inputType = pendingInput?.hidden ? 'password' : 'text';
+
+  const requestInput = useCallback(
+    (callback: (value: string) => void, hidden = false) => {
+      setPendingInput({ callback, hidden });
+    },
     []
   );
 
@@ -225,12 +239,15 @@ export function useTerminal(actions: TerminalActions) {
         history: historyRef.current,
         listCommands: () => COMMANDS,
         findCommand: (n) => commandMap.get(n.toLowerCase()),
+        requestInput,
+        pushLine,
+        login: actionsRef.current.login,
       };
 
       const result = cmd.run(ctx);
       if (result !== null && result !== undefined) pushLine(result);
     },
-    [pushLine, commandMap, openLink, clear]
+    [pushLine, commandMap, openLink, clear, requestInput]
   );
 
   const recallHistory = useCallback((direction: -1 | 1) => {
@@ -295,6 +312,25 @@ export function useTerminal(actions: TerminalActions) {
 
   const onInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Interactive prompt mode — route Enter to the pending callback.
+      if (pendingInput) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const value = input;
+          const { callback } = pendingInput;
+          setPendingInput(null);
+          setInput('');
+          callback(value);
+        } else if (
+          e.key === 'ArrowUp' ||
+          e.key === 'ArrowDown' ||
+          e.key === 'Tab'
+        ) {
+          e.preventDefault();
+        }
+        return;
+      }
+
       if (e.key === 'Enter') {
         e.preventDefault();
         const value = input;
@@ -311,10 +347,11 @@ export function useTerminal(actions: TerminalActions) {
         autocomplete();
       }
     },
-    [input, run, recallHistory, autocomplete]
+    [input, pendingInput, run, recallHistory, autocomplete]
   );
 
   const boot = useCallback(() => {
+    setPendingInput(null); // clear any stale interactive prompt
     if (bootedRef.current) return;
     bootedRef.current = true;
     pushLine(React.createElement(Welcome));
@@ -354,6 +391,9 @@ export function useTerminal(actions: TerminalActions) {
     inputRef,
     focusInput,
     prompt: PROMPT,
+    requestInput,
+    inputType,
+    pushLine,
   };
 }
 

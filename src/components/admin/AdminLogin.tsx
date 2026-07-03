@@ -4,15 +4,16 @@ import { useAdmin } from '../../context/AdminContext';
 import '../../styles/Admin.css';
 
 const AdminLogin: React.FC = () => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAdmin();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = login(password);
+    const success = await login(username, password);
     if (!success) {
-      setError('Invalid password');
+      setError('Invalid username or password');
       setPassword('');
     }
   };
@@ -29,10 +30,18 @@ const AdminLogin: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Username"
+            />
+          </div>
+          <div className="form-group">
+            <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter admin password"
+              placeholder="Password"
               required
             />
           </div>

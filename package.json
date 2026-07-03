@@ -7,7 +7,6 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
     "@types/react": "^19.1.8",
@@ -19,13 +18,15 @@
     "react-router-dom": "^7.6.3",
     "react-scripts": "5.0.1",
     "three": "^0.179.1",
+    "wasm-doom": "^1.2.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "copy-doom-wasm": "node -e \"require('fs').copyFileSync('node_modules/wasm-doom/wasm/doom.wasm','public/doom/doom.wasm')\""
   },
   "jest": {
     "moduleNameMapper": {
@@ -53,6 +54,7 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/user-event": "^13.5.0",
     "@types/three": "^0.179.0",
     "typescript": "^5.9.3"
   }

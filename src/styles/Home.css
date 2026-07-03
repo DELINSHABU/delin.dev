@@ -91,7 +91,7 @@
 
 @media (max-width: 768px) {
   .home {
-    min-height: calc(100vh - var(--header-mobile-height) - var(--sp-12));
+    min-height: calc(100vh - var(--sp-12));
   }
 
   .hero-content {
@@ -112,4 +112,13 @@
 
 .home.light .x-icon {
   filter: invert(1);
+}
+
+.hero-title-fallback {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--color-text);
+  margin: 0;
 }

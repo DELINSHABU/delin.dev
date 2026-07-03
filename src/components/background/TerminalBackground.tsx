@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import {
   motion,
   useMotionValue,
@@ -10,13 +10,35 @@ import {
   useAnimationFrame,
   useMotionTemplate,
 } from 'framer-motion';
-import AtmosphereShader from './AtmosphereShader';
 import './background.css';
+
+const AtmosphereShader = lazy(() => import('./AtmosphereShader'));
 
 const springConfig = { stiffness: 50, damping: 20 };
 
+// Phones / touch devices: skip the WebGL shader and the per-frame parallax so
+// scrolling stays on the native, GPU-accelerated path. A static CSS gradient
+// stands in for the shader.
+const MOBILE_QUERY = '(max-width: 767px), (pointer: coarse)';
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const onChange = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return isMobile;
+}
+
 const TerminalBackground: React.FC = () => {
   const reducedMotion = useReducedMotion() ?? false;
+  const isMobile = useIsMobile();
+  // "lite" = no per-frame JS animation: static layers, native scroll.
+  const lite = reducedMotion || isMobile;
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -56,7 +78,7 @@ const TerminalBackground: React.FC = () => {
   // grid flow owned in JS: idle drift + scroll travel + velocity surge
   const flow = useMotionValue(0);
   useAnimationFrame((_, delta) => {
-    if (reducedMotion) return;
+    if (lite) return;
     // idle 4px/s (the old 56px/14s keyframe), up to +24px/s under fast scroll
     const speed = 4 + smoothVel.get() * 24;
     flow.set(flow.get() + (speed * delta) / 1000);
@@ -70,8 +92,7 @@ const TerminalBackground: React.FC = () => {
   const grainOpacity = useTransform(smoothVel, [0, 1], [0.04, 0.08]);
 
   useEffect(() => {
-    if (reducedMotion) return;
-    if (window.matchMedia('(hover: none)').matches) return;
+    if (lite) return;
 
     const handleMouseMove = (event: MouseEvent) => {
       mouseX.set((event.clientX / window.innerWidth - 0.5) * 2);
@@ -79,32 +100,38 @@ const TerminalBackground: React.FC = () => {
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [reducedMotion, mouseX, mouseY]);
+  }, [lite, mouseX, mouseY]);
 
   return (
     <div className="terminal-bg" aria-hidden="true">
-      <AtmosphereShader
-        reducedMotion={reducedMotion}
-        scrollProgress={progress}
-        scrollVelocity={smoothVel}
-      />
+      {isMobile ? (
+        <div className="terminal-bg__layer terminal-bg__fallback" />
+      ) : (
+        <Suspense fallback={null}>
+          <AtmosphereShader
+            reducedMotion={reducedMotion}
+            scrollProgress={progress}
+            scrollVelocity={smoothVel}
+          />
+        </Suspense>
+      )}
       <motion.div
         className="terminal-bg__layer terminal-bg__glow"
-        style={reducedMotion ? undefined : { x: glowX, y: glowY, scale: glowScale }}
+        style={lite ? undefined : { x: glowX, y: glowY, scale: glowScale }}
       />
       <motion.div
         className="terminal-bg__grid-wrap"
-        style={reducedMotion ? undefined : { x: gridX, y: gridY, scale: gridScale }}
+        style={lite ? undefined : { x: gridX, y: gridY, scale: gridScale }}
       >
         <motion.div
           className="terminal-bg__grid"
-          style={reducedMotion ? undefined : { backgroundPosition: gridBgPos }}
+          style={lite ? undefined : { backgroundPosition: gridBgPos }}
         />
       </motion.div>
       <div className="terminal-bg__layer terminal-bg__scanlines" />
       <motion.div
         className="terminal-bg__layer terminal-bg__grain"
-        style={reducedMotion ? undefined : { opacity: grainOpacity }}
+        style={lite ? undefined : { opacity: grainOpacity }}
       />
     </div>
   );

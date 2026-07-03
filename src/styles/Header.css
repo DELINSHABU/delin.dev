@@ -10,8 +10,14 @@
   justify-content: center;
   align-items: center;
   background: rgba(10, 11, 14, 0.35);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border-right: 1px solid var(--border);
+  /* Keep the bar on its own stable compositing layer so its backdrop-filter
+     isn't dropped/repainted during fast scroll (the "navbar flicker"). */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .header nav {
@@ -78,56 +84,21 @@
 .nav-link.active {
   color: var(--accent);
   text-shadow: 0 0 12px var(--glow);
-  border-left-color: var(--accent);
-  box-shadow: -4px 0 12px var(--glow-soft);
+  animation: cursor-blink 2.2s ease-in-out infinite;
 }
 
 .nav-link.active .nav-link__index {
   opacity: 1;
 }
 
-/* mobile: bottom bar */
-@media (max-width: 768px) {
-  .header {
-    width: 100%;
-    height: var(--header-mobile-height);
-    top: auto;
-    bottom: 0;
-    border-right: none;
-    border-top: 1px solid var(--border);
-    background: rgba(10, 11, 14, 0.85);
-    backdrop-filter: blur(12px);
-  }
-
-  .header nav {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .nav-links {
-    flex-direction: row;
-    height: auto;
-    gap: var(--sp-6);
-  }
-
-  .nav-link {
-    transform: none;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-
-  .nav-link__index {
-    display: none;
-  }
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
-@media (max-width: 375px) {
-  .nav-links {
-    gap: var(--sp-4);
-  }
-
-  .nav-link {
-    font-size: var(--fs-micro);
-    padding: var(--sp-2);
+/* mobile: hide the navbar entirely */
+@media (max-width: 768px) {
+  .header {
+    display: none;
   }
 }

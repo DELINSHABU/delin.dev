@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
 import { AdminProvider } from './context/AdminContext';
@@ -9,12 +9,13 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Projects from './pages/Projects';
 import Contact from './pages/Contact';
-import ProjectDetails from './pages/ProjectDetails';
-import AdminPage from './pages/admin/AdminPage';
 import Header from './components/Header';
 import ScrollProgress from './components/ScrollProgress';
-import Terminal from './components/terminal/Terminal';
 import './styles/App.css';
+
+const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
+const AdminPage = lazy(() => import('./pages/admin/AdminPage'));
+const Terminal = lazy(() => import('./components/terminal/Terminal'));
 
 const pageVariants = {
   initial: { opacity: 0, y: 16, filter: 'blur(4px)' },
@@ -66,7 +67,6 @@ function AppRoutes() {
   const isAdmin = location.pathname === '/admin';
   const isMainPage = location.pathname === '/';
 
-  // Ctrl+Shift+A toggles the admin panel
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
@@ -78,7 +78,6 @@ function AppRoutes() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [navigate, location.pathname]);
 
-  // pause smooth scrolling while the admin overlay is open
   useEffect(() => {
     if (!lenis) return;
     if (isAdmin) lenis.stop();
@@ -89,27 +88,29 @@ function AppRoutes() {
     <>
       {isMainPage && <ScrollProgress />}
       {isMainPage && <Header />}
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<MainPage />} />
-          <Route
-            path="/project/:slug"
-            element={
-              <PageWrapper>
-                <ProjectDetails />
-              </PageWrapper>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <PageWrapper>
-                <AdminPage />
-              </PageWrapper>
-            }
-          />
-        </Routes>
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<MainPage />} />
+            <Route
+              path="/project/:slug"
+              element={
+                <PageWrapper>
+                  <ProjectDetails />
+                </PageWrapper>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <PageWrapper>
+                  <AdminPage />
+                </PageWrapper>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
+      </Suspense>
     </>
   );
 }
@@ -123,7 +124,9 @@ function App() {
             <CustomCursor />
             <TerminalBackground />
             <AppRoutes />
-            <Terminal />
+            <Suspense fallback={null}>
+              <Terminal />
+            </Suspense>
           </div>
         </SmoothScrollProvider>
       </AdminProvider>

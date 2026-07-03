@@ -417,17 +417,30 @@
   flex: 1;
   min-height: 0;
   background: #000;
+  z-index: 0;
 }
 
+/* the canvas creates its own stacking context inside the body — lift the
+   window chrome above it so the dots and resize handle stay visible/clickable */
+.doom-window .term-bar {
+  position: relative;
+  z-index: 3;
+}
+
+.doom-window .term-resize {
+  z-index: 3;
+}
+
+/* DOOM renders to a fixed 640x400 buffer; scale the canvas to fill the window,
+   keep its aspect ratio, and stay crisp (no smoothing) as it grows */
 .doom-window__screen {
+  display: block;
   width: 100%;
   height: 100%;
-}
-
-/* js-dos mounts its own root inside the screen div — make it fill */
-.doom-window__screen > * {
-  width: 100%;
-  height: 100%;
+  object-fit: contain;
+  background: #000;
+  image-rendering: pixelated;
+  outline: none;
 }
 
 .doom-window__status {
@@ -439,4 +452,18 @@
   text-align: center;
   padding: var(--sp-4);
   pointer-events: none;
+}
+
+/* while dragging/resizing, don't let the canvas swallow pointer events */
+.doom-window--busy .doom-window__screen {
+  pointer-events: none;
+}
+
+/* minimized: collapse to just the title bar, but keep doom running */
+.doom-window--minimized .doom-window__body {
+  display: none;
+}
+
+.doom-window--minimized .term-bar {
+  cursor: pointer;
 }

@@ -1,7 +1,7 @@
-import styleWaveImg from '../Screenshots/StyleWavE-Commerce.png';
-import jobImg from '../Screenshots/JobApplyingTracker.png';
-import anomalyImg from '../Screenshots/AnomalyDesignStudio.png';
-import bloomImg from '../Screenshots/BloomCafePOS.png';
+import styleWaveImg from '../Screenshots/StyleWavE-Commerce.webp';
+import jobImg from '../Screenshots/JobApplyingTracker.webp';
+import anomalyImg from '../Screenshots/AnomalyDesignStudio.webp';
+import bloomImg from '../Screenshots/BloomCafePOS.webp';
 
 export interface Project {
   slug: string;

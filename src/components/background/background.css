@@ -85,7 +85,22 @@
   );
 }
 
+/* static stand-in for the WebGL shader on phones (matches its home tint) */
+.terminal-bg__fallback {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.55) 100%),
+    radial-gradient(ellipse 70% 55% at 50% 40%, rgba(94, 162, 255, 0.1), transparent 70%),
+    var(--bg-base);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .terminal-bg__grain {
+    animation: none;
+  }
+}
+
+/* phones / touch: kill the per-frame grain repaint (JS parallax is already off) */
+@media (max-width: 767px), (pointer: coarse) {
   .terminal-bg__grain {
     animation: none;
   }

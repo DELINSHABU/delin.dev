@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { motion, useScroll } from 'framer-motion';
-import HeroTitle from '../components/hero/HeroTitle';
-import HeroGeometry from '../components/hero/HeroGeometry';
 import TypewriterText from '../components/TypewriterText';
 import { useScrollToSection } from '../lib/SmoothScrollProvider';
 import { useMagnetic } from '../hooks/useMagnetic';
 import { useParallax } from '../hooks/useParallax';
 import { socials as SOCIAL_LINKS, identity } from '../data/profile';
 import '../styles/Home.css';
+
+const HeroTitle = lazy(() => import('../components/hero/HeroTitle'));
+const HeroGeometry = lazy(() => import('../components/hero/HeroGeometry'));
 
 const MagneticButton: React.FC<{
   children: React.ReactNode;
@@ -118,7 +119,9 @@ const Home: React.FC = () => {
         </motion.div>
       </motion.div>
 
-      <HeroGeometry scrollYProgress={scrollYProgress} />
+      <Suspense fallback={null}>
+        <HeroGeometry scrollYProgress={scrollYProgress} />
+      </Suspense>
     </div>
   );
 };

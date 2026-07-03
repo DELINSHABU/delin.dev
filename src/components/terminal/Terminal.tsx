@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLenis } from '../../lib/SmoothScrollProvider';
+import { useAdmin } from '../../context/AdminContext';
 import { identity } from '../../data/profile';
 import { useTerminal } from './useTerminal';
 import { TerminalBusyContext } from './commands';
@@ -33,6 +34,7 @@ const Terminal: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const lenis = useLenis();
+  const { login } = useAdmin();
 
   const [open, setOpen] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -67,6 +69,7 @@ const Terminal: React.FC = () => {
     navigate: (to) => navigate(to),
     scrollToSection,
     close: () => setOpen(false),
+    login,
   });
   const {
     boot,
@@ -274,6 +277,7 @@ const Terminal: React.FC = () => {
                     <input
                       ref={term.inputRef}
                       className="term-input"
+                      type={term.inputType}
                       value={term.input}
                       onChange={(e) => term.setInput(e.target.value)}
                       onKeyDown={term.onInputKeyDown}
@@ -281,7 +285,11 @@ const Terminal: React.FC = () => {
                       autoComplete="off"
                       autoCapitalize="off"
                       autoCorrect="off"
-                      aria-label="Terminal command input"
+                      aria-label={
+                        term.inputType === 'password'
+                          ? 'Password input'
+                          : 'Terminal command input'
+                      }
                     />
                   </div>
                 )}
