@@ -52,11 +52,11 @@ const ScrambleText: React.FC<{ text: string; play: boolean }> = ({ text, play })
   return <span aria-label={text}>{display}</span>;
 };
 
-const NavItemEl: React.FC<{
+const NavItemEl = React.memo<{
   item: (typeof NAV_ITEMS)[0];
   active: boolean;
-  onClick: () => void;
-}> = ({ item, active, onClick }) => {
+  onNavigate: (id: string) => void;
+}>(({ item, active, onNavigate }) => {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -67,7 +67,7 @@ const NavItemEl: React.FC<{
         onClick={(e) => {
           e.preventDefault();
           (document.activeElement as HTMLElement | null)?.blur();
-          onClick();
+          onNavigate(item.id);
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -78,7 +78,7 @@ const NavItemEl: React.FC<{
       </a>
     </motion.li>
   );
-};
+});
 
 const Header: React.FC = () => {
   const activeSection = useActiveSection();
@@ -98,7 +98,7 @@ const Header: React.FC = () => {
               key={item.id}
               item={item}
               active={activeSection === item.id}
-              onClick={() => scrollToSection(item.id)}
+              onNavigate={scrollToSection}
             />
           ))}
         </motion.ul>

@@ -8,18 +8,14 @@ import {
   useScroll,
   useVelocity,
   useAnimationFrame,
-  useMotionTemplate,
 } from 'framer-motion';
+import { pointerCenteredX, pointerCenteredY, subscribePointer } from '../../lib/pointer';
+import { MOBILE_QUERY } from '../../utils/device';
 import './background.css';
 
 const AtmosphereShader = lazy(() => import('./AtmosphereShader'));
 
 const springConfig = { stiffness: 50, damping: 20 };
-
-// Phones / touch devices: skip the WebGL shader and the per-frame parallax so
-// scrolling stays on the native, GPU-accelerated path. A static CSS gradient
-// stands in for the shader.
-const MOBILE_QUERY = '(max-width: 767px), (pointer: coarse)';
 
 function useIsMobile(): boolean {
   const [isMobile, setIsMobile] = useState(
@@ -34,16 +30,33 @@ function useIsMobile(): boolean {
   return isMobile;
 }
 
-const TerminalBackground: React.FC = () => {
-  const reducedMotion = useReducedMotion() ?? false;
-  const isMobile = useIsMobile();
-  // "lite" = no per-frame JS animation: static layers, native scroll.
-  const lite = reducedMotion || isMobile;
+/** The static layer stack — plain divs, no per-frame work. Used on phones and,
+ *  minus the WebGL shader, for reduced-motion desktops. */
+const StaticLayers: React.FC<{ mobile?: boolean }> = ({ mobile }) => (
+  <>
+    {mobile && <div className="terminal-bg__layer terminal-bg__fallback" />}
+    <div className="terminal-bg__layer terminal-bg__glow" />
+    <div className="terminal-bg__grid-wrap">
+      <div className="terminal-bg__grid">
+        <div className="terminal-bg__grid-pattern" />
+      </div>
+    </div>
+    <div className="terminal-bg__layer terminal-bg__scanlines" />
+    <div className="terminal-bg__layer terminal-bg__grain" />
+  </>
+);
 
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
+/**
+ * The full motion pipeline: WebGL shader + JS-driven parallax. Mounted only on
+ * desktop, so phones never create these scroll/velocity/spring subscriptions —
+ * on a phone the whole thing collapses to <StaticLayers>, keeping scroll on the
+ * native compositor path.
+ */
+const DesktopBackdrop: React.FC = () => {
+  const reducedMotion = useReducedMotion() ?? false;
+
+  const springX = useSpring(pointerCenteredX, springConfig);
+  const springY = useSpring(pointerCenteredY, springConfig);
 
   const { scrollY, scrollYProgress } = useScroll();
 
@@ -78,7 +91,7 @@ const TerminalBackground: React.FC = () => {
   // grid flow owned in JS: idle drift + scroll travel + velocity surge
   const flow = useMotionValue(0);
   useAnimationFrame((_, delta) => {
-    if (lite) return;
+    if (reducedMotion) return;
     // idle 4px/s (the old 56px/14s keyframe), up to +24px/s under fast scroll
     const speed = 4 + smoothVel.get() * 24;
     flow.set(flow.get() + (speed * delta) / 1000);
@@ -87,52 +100,59 @@ const TerminalBackground: React.FC = () => {
     const [f, s] = v as number[];
     return (f + s * 0.3) % 56;
   });
-  const gridBgPos = useMotionTemplate`0px ${gridFlowY}px`;
 
   const grainOpacity = useTransform(smoothVel, [0, 1], [0.04, 0.08]);
 
   useEffect(() => {
-    if (lite) return;
+    if (reducedMotion) return;
+    return subscribePointer();
+  }, [reducedMotion]);
 
-    const handleMouseMove = (event: MouseEvent) => {
-      mouseX.set((event.clientX / window.innerWidth - 0.5) * 2);
-      mouseY.set((event.clientY / window.innerHeight - 0.5) * 2);
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [lite, mouseX, mouseY]);
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AtmosphereShader
+          reducedMotion={reducedMotion}
+          scrollProgress={progress}
+          scrollVelocity={smoothVel}
+        />
+      </Suspense>
+      {reducedMotion ? (
+        <StaticLayers />
+      ) : (
+        <>
+          <motion.div
+            className="terminal-bg__layer terminal-bg__glow"
+            style={{ x: glowX, y: glowY, scale: glowScale }}
+          />
+          <motion.div
+            className="terminal-bg__grid-wrap"
+            style={{ x: gridX, y: gridY, scale: gridScale }}
+          >
+            <div className="terminal-bg__grid">
+              <motion.div
+                className="terminal-bg__grid-pattern"
+                style={{ y: gridFlowY }}
+              />
+            </div>
+          </motion.div>
+          <div className="terminal-bg__layer terminal-bg__scanlines" />
+          <motion.div
+            className="terminal-bg__layer terminal-bg__grain"
+            style={{ opacity: grainOpacity }}
+          />
+        </>
+      )}
+    </>
+  );
+};
+
+const TerminalBackground: React.FC = () => {
+  const isMobile = useIsMobile();
 
   return (
     <div className="terminal-bg" aria-hidden="true">
-      {isMobile ? (
-        <div className="terminal-bg__layer terminal-bg__fallback" />
-      ) : (
-        <Suspense fallback={null}>
-          <AtmosphereShader
-            reducedMotion={reducedMotion}
-            scrollProgress={progress}
-            scrollVelocity={smoothVel}
-          />
-        </Suspense>
-      )}
-      <motion.div
-        className="terminal-bg__layer terminal-bg__glow"
-        style={lite ? undefined : { x: glowX, y: glowY, scale: glowScale }}
-      />
-      <motion.div
-        className="terminal-bg__grid-wrap"
-        style={lite ? undefined : { x: gridX, y: gridY, scale: gridScale }}
-      >
-        <motion.div
-          className="terminal-bg__grid"
-          style={lite ? undefined : { backgroundPosition: gridBgPos }}
-        />
-      </motion.div>
-      <div className="terminal-bg__layer terminal-bg__scanlines" />
-      <motion.div
-        className="terminal-bg__layer terminal-bg__grain"
-        style={lite ? undefined : { opacity: grainOpacity }}
-      />
+      {isMobile ? <StaticLayers mobile /> : <DesktopBackdrop />}
     </div>
   );
 };

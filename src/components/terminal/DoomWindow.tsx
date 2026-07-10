@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import WindowBar from '../WindowBar';
+import { useWindowDrag } from '../../hooks/useWindowDrag';
+import { BREAKPOINT_TERMINAL_FULLSCREEN } from '../../utils/device';
 import { startDoom, DoomHandle, DOOM_W, DOOM_H } from './doomEngine';
+import { EASE_OUT } from '../../utils/animations';
 
 // DOOM runs fully offline: the engine is a self-hosted WebAssembly binary at
 // /doom/doom.wasm (see doomEngine.ts) — no third-party CDN.
@@ -8,7 +12,6 @@ const DEFAULT_W = 720;
 const DEFAULT_H = 480;
 const MIN_W = 420;
 const MIN_H = 320;
-const MOBILE_BREAKPOINT = 760;
 
 type Status = 'loading' | 'running' | 'error';
 
@@ -16,10 +19,21 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [fullscreen, setFullscreen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [interacting, setInteracting] = useState(false);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [size, setSize] = useState({ w: DEFAULT_W, h: DEFAULT_H });
   const [status, setStatus] = useState<Status>('loading');
   const screenRef = useRef<HTMLCanvasElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
+
+  const onInteractStart = useCallback(() => setInteracting(true), []);
+  const onInteractEnd = useCallback(() => setInteracting(false), []);
+  const { pos, setPos, size, startDrag, startResize } = useWindowDrag({
+    windowRef,
+    minW: MIN_W,
+    minH: MIN_H,
+    defaultW: DEFAULT_W,
+    defaultH: DEFAULT_H,
+    onInteractStart,
+    onInteractEnd,
+  });
 
   // Center-ish on first mount; fullscreen on small screens.
   useEffect(() => {
@@ -27,8 +41,8 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       x: Math.max(16, Math.round((window.innerWidth - DEFAULT_W) / 2) - 40),
       y: Math.max(16, Math.round((window.innerHeight - DEFAULT_H) / 2) - 24),
     });
-    if (window.innerWidth < MOBILE_BREAKPOINT) setFullscreen(true);
-  }, []);
+    if (window.innerWidth < BREAKPOINT_TERMINAL_FULLSCREEN) setFullscreen(true);
+  }, [setPos]);
 
   // Boot the engine: hand the self-hosted DOOM wasm our canvas, then keep the
   // handle so we can fully stop it (game loop + input) when the window closes.
@@ -61,29 +75,6 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     };
   }, []);
 
-  // --- dragging (title bar) ---
-  const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(
-    null
-  );
-  const onDragMove = useCallback((e: PointerEvent) => {
-    const d = dragRef.current;
-    if (!d) return;
-    const x = Math.min(
-      Math.max(0, d.ox + (e.clientX - d.sx)),
-      window.innerWidth - 200
-    );
-    const y = Math.min(
-      Math.max(0, d.oy + (e.clientY - d.sy)),
-      window.innerHeight - 80
-    );
-    setPos({ x, y });
-  }, []);
-  const onDragUp = useCallback(() => {
-    dragRef.current = null;
-    setInteracting(false);
-    window.removeEventListener('pointermove', onDragMove);
-    window.removeEventListener('pointerup', onDragUp);
-  }, [onDragMove]);
   const onTitlePointerDown = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('button')) return;
     // A collapsed bar acts as a restore button, not a drag handle.
@@ -92,36 +83,7 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       return;
     }
     if (fullscreen) return;
-    dragRef.current = { sx: e.clientX, sy: e.clientY, ox: pos.x, oy: pos.y };
-    setInteracting(true);
-    window.addEventListener('pointermove', onDragMove);
-    window.addEventListener('pointerup', onDragUp);
-  };
-
-  // --- resizing (bottom-right handle) ---
-  const resizeRef = useRef<{ sx: number; sy: number; ow: number; oh: number } | null>(
-    null
-  );
-  const onResizeMove = useCallback((e: PointerEvent) => {
-    const r = resizeRef.current;
-    if (!r) return;
-    setSize({
-      w: Math.max(MIN_W, r.ow + (e.clientX - r.sx)),
-      h: Math.max(MIN_H, r.oh + (e.clientY - r.sy)),
-    });
-  }, []);
-  const onResizeUp = useCallback(() => {
-    resizeRef.current = null;
-    setInteracting(false);
-    window.removeEventListener('pointermove', onResizeMove);
-    window.removeEventListener('pointerup', onResizeUp);
-  }, [onResizeMove]);
-  const onResizePointerDown = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    resizeRef.current = { sx: e.clientX, sy: e.clientY, ow: size.w, oh: size.h };
-    setInteracting(true);
-    window.addEventListener('pointermove', onResizeMove);
-    window.addEventListener('pointerup', onResizeUp);
+    startDrag(e);
   };
 
   const windowStyle: React.CSSProperties = fullscreen
@@ -135,6 +97,7 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <motion.div
+      ref={windowRef}
       className={`terminal-window term-window doom-window${
         fullscreen ? ' term-window--fullscreen' : ''
       }${minimized ? ' doom-window--minimized' : ''}${
@@ -146,35 +109,24 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       aria-label="DOOM"
       initial={{ opacity: 0, scale: 0.96, y: 8 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.18, ease: EASE_OUT }}
     >
-      <div
-        className="terminal-window__bar term-bar"
+      <WindowBar
+        title="doom.exe"
         onPointerDown={onTitlePointerDown}
-      >
-        <button
-          type="button"
-          className="dot dot--red"
-          aria-label="Close doom"
-          onClick={onClose}
-        />
-        <button
-          type="button"
-          className="dot dot--yellow"
-          aria-label={minimized ? 'Restore doom' : 'Minimize doom'}
-          onClick={() => setMinimized((m) => !m)}
-        />
-        <button
-          type="button"
-          className="dot dot--green"
-          aria-label="Toggle fullscreen"
-          onClick={() => {
+        red={{ label: 'Close doom', onClick: onClose }}
+        yellow={{
+          label: minimized ? 'Restore doom' : 'Minimize doom',
+          onClick: () => setMinimized((m) => !m),
+        }}
+        green={{
+          label: 'Toggle fullscreen',
+          onClick: () => {
             setMinimized(false);
             setFullscreen((f) => !f);
-          }}
-        />
-        <span className="terminal-window__title term-bar__title">doom.exe</span>
-      </div>
+          },
+        }}
+      />
 
       <div className="doom-window__body">
         <canvas
@@ -203,7 +155,7 @@ const DoomWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       {!fullscreen && !minimized && (
         <span
           className="term-resize"
-          onPointerDown={onResizePointerDown}
+          onPointerDown={startResize}
           aria-hidden="true"
         />
       )}

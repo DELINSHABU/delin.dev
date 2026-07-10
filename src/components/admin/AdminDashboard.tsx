@@ -6,6 +6,7 @@ import SkillsEditor from './SkillsEditor';
 import JourneyEditor from './JourneyEditor';
 import ProjectsEditor from './ProjectsEditor';
 import '../../styles/Admin.css';
+import Icon from '../Icon';
 
 type ActiveTab = 'about' | 'skills' | 'journey' | 'projects';
 
@@ -50,7 +51,7 @@ const AdminDashboard: React.FC = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <i className="fas fa-sign-out-alt"></i> Logout
+          <Icon name="fas fa-sign-out-alt" /> Logout
         </motion.button>
       </motion.header>
 
@@ -69,7 +70,7 @@ const AdminDashboard: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <i className={tab.icon}></i>
+              <Icon name={tab.icon} />
               {tab.label}
             </motion.button>
           ))}

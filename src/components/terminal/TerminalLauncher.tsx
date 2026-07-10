@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useMagnetic } from '../../hooks/useMagnetic';
+import { EASE_OUT } from '../../utils/animations';
 
 interface TerminalLauncherProps {
   onOpen: () => void;
@@ -56,7 +57,7 @@ const TerminalLauncher: React.FC<TerminalLauncherProps> = ({ onOpen }) => {
         onPointerLeave={magnetic.onPointerLeave}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.4, ease: EASE_OUT }}
         aria-label="Open interactive terminal"
         title="Open terminal (press `)"
       >

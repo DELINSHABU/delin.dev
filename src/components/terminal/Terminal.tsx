@@ -4,18 +4,21 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLenis } from '../../lib/SmoothScrollProvider';
 import { useAdmin } from '../../context/AdminContext';
 import { identity } from '../../data/profile';
-import { useTerminal } from './useTerminal';
-import { TerminalBusyContext } from './commands';
+import { useWindowDrag } from '../../hooks/useWindowDrag';
+import { BREAKPOINT_TERMINAL_FULLSCREEN } from '../../utils/device';
+import { useTerminal, TermLine } from './useTerminal';
+import { TerminalBusyContext, BusyApi } from './commands';
+import WindowBar from '../WindowBar';
 import TerminalLauncher from './TerminalLauncher';
 import MatrixRain from './MatrixRain';
 import DoomWindow from './DoomWindow';
 import '../../styles/Terminal.css';
+import { EASE_OUT } from '../../utils/animations';
 
 const DEFAULT_W = 860;
 const DEFAULT_H = 380;
 const MIN_W = 420;
 const MIN_H = 220;
-const MOBILE_BREAKPOINT = 760;
 
 const KONAMI = [
   'ArrowUp',
@@ -30,6 +33,22 @@ const KONAMI = [
   'a',
 ];
 
+/**
+ * Memoized output history: typing (input state) and drag/resize no longer
+ * re-reconcile every printed line — only appends change the `lines` ref.
+ */
+const TerminalOutput = React.memo<{ lines: TermLine[]; busyApi: BusyApi }>(
+  ({ lines, busyApi }) => (
+    <TerminalBusyContext.Provider value={busyApi}>
+      {lines.map((line) => (
+        <div key={line.id} className="term-line">
+          {line.node}
+        </div>
+      ))}
+    </TerminalBusyContext.Provider>
+  )
+);
+
 const Terminal: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,8 +57,14 @@ const Terminal: React.FC = () => {
 
   const [open, setOpen] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [size, setSize] = useState({ w: DEFAULT_W, h: DEFAULT_H });
+  const windowRef = useRef<HTMLDivElement>(null);
+  const { pos, setPos, size, startDrag, startResize } = useWindowDrag({
+    windowRef,
+    minW: MIN_W,
+    minH: MIN_H,
+    defaultW: DEFAULT_W,
+    defaultH: DEFAULT_H,
+  });
   const initialized = useRef(false);
 
   // Smooth-scroll to a section, hopping back to the main page first if needed.
@@ -91,13 +116,13 @@ const Terminal: React.FC = () => {
       x: Math.max(16, window.innerWidth - DEFAULT_W - 32),
       y: Math.max(16, window.innerHeight - DEFAULT_H - 48),
     });
-  }, []);
+  }, [setPos]);
 
   // On open: boot the shell, focus input, and go fullscreen on small screens.
   useEffect(() => {
     if (!open) return;
     boot();
-    if (window.innerWidth < MOBILE_BREAKPOINT) setFullscreen(true);
+    if (window.innerWidth < BREAKPOINT_TERMINAL_FULLSCREEN) setFullscreen(true);
     const t = window.setTimeout(() => focusInput(), 60);
     return () => window.clearTimeout(t);
   }, [open, boot, focusInput]);
@@ -150,58 +175,10 @@ const Terminal: React.FC = () => {
     else lenis.start();
   }, [lenis, open, fullscreen]);
 
-  // --- dragging (title bar) ---
-  const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(
-    null
-  );
-  const onDragMove = useCallback((e: PointerEvent) => {
-    const d = dragRef.current;
-    if (!d) return;
-    const x = Math.min(
-      Math.max(0, d.ox + (e.clientX - d.sx)),
-      window.innerWidth - 200
-    );
-    const y = Math.min(
-      Math.max(0, d.oy + (e.clientY - d.sy)),
-      window.innerHeight - 80
-    );
-    setPos({ x, y });
-  }, []);
-  const onDragUp = useCallback(() => {
-    dragRef.current = null;
-    window.removeEventListener('pointermove', onDragMove);
-    window.removeEventListener('pointerup', onDragUp);
-  }, [onDragMove]);
   const onTitlePointerDown = (e: React.PointerEvent) => {
     if (fullscreen) return;
     if ((e.target as HTMLElement).closest('button')) return;
-    dragRef.current = { sx: e.clientX, sy: e.clientY, ox: pos.x, oy: pos.y };
-    window.addEventListener('pointermove', onDragMove);
-    window.addEventListener('pointerup', onDragUp);
-  };
-
-  // --- resizing (bottom-right handle) ---
-  const resizeRef = useRef<{ sx: number; sy: number; ow: number; oh: number } | null>(
-    null
-  );
-  const onResizeMove = useCallback((e: PointerEvent) => {
-    const r = resizeRef.current;
-    if (!r) return;
-    setSize({
-      w: Math.max(MIN_W, r.ow + (e.clientX - r.sx)),
-      h: Math.max(MIN_H, r.oh + (e.clientY - r.sy)),
-    });
-  }, []);
-  const onResizeUp = useCallback(() => {
-    resizeRef.current = null;
-    window.removeEventListener('pointermove', onResizeMove);
-    window.removeEventListener('pointerup', onResizeUp);
-  }, [onResizeMove]);
-  const onResizePointerDown = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    resizeRef.current = { sx: e.clientX, sy: e.clientY, ow: size.w, oh: size.h };
-    window.addEventListener('pointermove', onResizeMove);
-    window.addEventListener('pointerup', onResizeUp);
+    startDrag(e);
   };
 
   const title = `${identity.handle}@${identity.host} — bash`;
@@ -217,6 +194,7 @@ const Terminal: React.FC = () => {
         {open && (
           <motion.div
             key="terminal-window"
+            ref={windowRef}
             className={`terminal-window term-window${
               fullscreen ? ' term-window--fullscreen' : ''
             }`}
@@ -227,32 +205,18 @@ const Terminal: React.FC = () => {
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
-            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.18, ease: EASE_OUT }}
           >
-            <div
-              className="terminal-window__bar term-bar"
+            <WindowBar
+              title={title}
               onPointerDown={onTitlePointerDown}
-            >
-              <button
-                type="button"
-                className="dot dot--red"
-                aria-label="Close terminal"
-                onClick={() => setOpen(false)}
-              />
-              <button
-                type="button"
-                className="dot dot--yellow"
-                aria-label="Minimize terminal"
-                onClick={() => setOpen(false)}
-              />
-              <button
-                type="button"
-                className="dot dot--green"
-                aria-label="Toggle fullscreen"
-                onClick={() => setFullscreen((f) => !f)}
-              />
-              <span className="terminal-window__title term-bar__title">{title}</span>
-            </div>
+              red={{ label: 'Close terminal', onClick: () => setOpen(false) }}
+              yellow={{ label: 'Minimize terminal', onClick: () => setOpen(false) }}
+              green={{
+                label: 'Toggle fullscreen',
+                onClick: () => setFullscreen((f) => !f),
+              }}
+            />
 
             <div
               className="term-body"
@@ -262,13 +226,7 @@ const Terminal: React.FC = () => {
               onClick={() => focusInput()}
             >
               <div className="term-content" ref={term.setContentRef}>
-                <TerminalBusyContext.Provider value={busyApi}>
-                  {term.lines.map((line) => (
-                    <div key={line.id} className="term-line">
-                      {line.node}
-                    </div>
-                  ))}
-                </TerminalBusyContext.Provider>
+                <TerminalOutput lines={term.lines} busyApi={busyApi} />
 
                 {/* hide the prompt while a command is still running (real-shell feel) */}
                 {!busy && (
@@ -299,7 +257,7 @@ const Terminal: React.FC = () => {
             {!fullscreen && (
               <span
                 className="term-resize"
-                onPointerDown={onResizePointerDown}
+                onPointerDown={startResize}
                 aria-hidden="true"
               />
             )}

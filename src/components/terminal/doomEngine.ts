@@ -61,11 +61,22 @@ export async function startDoom(
   // 108 pages (~6.75MB) — the size the wasm build expects for imported memory.
   const memory = new WebAssembly.Memory({ initial: 108 });
 
+  // Reuse one ImageData across frames to avoid per-frame allocation churn;
+  // rebuild only if DOOM grows its memory (which detaches old buffers) or
+  // renders from a different framebuffer pointer.
+  let cachedBuffer: ArrayBuffer | null = null;
+  let cachedPtr = -1;
+  let cachedImage: ImageData | null = null;
+
   const drawScreen = (ptr: number) => {
     if (!ctx) return;
-    // Fresh view every frame: DOOM may grow its memory and detach old buffers.
-    const pixels = new Uint8ClampedArray(memory.buffer, ptr, DOOM_W * DOOM_H * 4);
-    ctx.putImageData(new ImageData(pixels, DOOM_W, DOOM_H), 0, 0);
+    if (!cachedImage || cachedBuffer !== memory.buffer || cachedPtr !== ptr) {
+      cachedBuffer = memory.buffer;
+      cachedPtr = ptr;
+      const pixels = new Uint8ClampedArray(memory.buffer, ptr, DOOM_W * DOOM_H * 4);
+      cachedImage = new ImageData(pixels, DOOM_W, DOOM_H);
+    }
+    ctx.putImageData(cachedImage, 0, 0);
   };
 
   const imports: WebAssembly.Imports = {

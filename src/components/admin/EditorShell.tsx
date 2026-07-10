@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '../../utils/animations';
+import Icon from '../Icon';
 
 interface EditorShellProps {
   title: string;
@@ -34,7 +35,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <i className="fas fa-edit"></i> Edit
+          <Icon name="fas fa-edit" /> Edit
         </motion.button>
       ) : (
         <div className="action-buttons">
@@ -44,7 +45,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <i className="fas fa-save"></i> Save
+            <Icon name="fas fa-save" /> Save
           </motion.button>
           <motion.button
             className="cancel-btn"
@@ -52,7 +53,7 @@ const EditorShell: React.FC<EditorShellProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <i className="fas fa-times"></i> Cancel
+            <Icon name="fas fa-times" /> Cancel
           </motion.button>
         </div>
       )}

@@ -6,6 +6,7 @@ import { useMagnetic } from '../hooks/useMagnetic';
 import { useParallax } from '../hooks/useParallax';
 import { socials as SOCIAL_LINKS, identity } from '../data/profile';
 import '../styles/Home.css';
+import Icon from '../components/Icon';
 
 const HeroTitle = lazy(() => import('../components/hero/HeroTitle'));
 const HeroGeometry = lazy(() => import('../components/hero/HeroGeometry'));
@@ -112,7 +113,7 @@ const Home: React.FC = () => {
                 aria-label={link.label}
                 data-cursor="hover"
               >
-                <i className={link.icon} aria-hidden="true"></i>
+                <Icon name={link.icon} />
               </a>
             ))}
           </div>

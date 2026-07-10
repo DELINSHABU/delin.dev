@@ -1,8 +1,10 @@
 /* eslint-disable react/no-unknown-property */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useReducedMotion } from 'framer-motion';
+import { useInView, useReducedMotion } from 'framer-motion';
 import * as THREE from 'three';
+import usePageVisible from '../../hooks/usePageVisible';
+import { BREAKPOINT_MOBILE, supportsWebGL } from '../../utils/device';
 import './HeroTitle.css';
 
 const vertexShader = `
@@ -55,9 +57,15 @@ interface TitlePlaneProps {
   text: string;
   fontSize: number;
   pointer: React.MutableRefObject<PointerState>;
+  onSettle: () => void;
 }
 
-const TitlePlane: React.FC<TitlePlaneProps> = ({ text, fontSize, pointer }) => {
+const TitlePlane: React.FC<TitlePlaneProps> = ({
+  text,
+  fontSize,
+  pointer,
+  onSettle,
+}) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null!);
   const { size, viewport } = useThree();
   const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null);
@@ -122,7 +130,18 @@ const TitlePlane: React.FC<TitlePlaneProps> = ({ text, fontSize, pointer }) => {
       delta
     );
     (u.uMouse.value as THREE.Vector2).lerp(pointer.current.mouse, 0.15);
+    // once the ripple has fully decayed the shader output is a static blit,
+    // so hand rendering back to demand mode until the next hover
+    if (pointer.current.hoverTarget === 0 && u.uHover.value < 0.001) {
+      u.uHover.value = 0;
+      onSettle();
+    }
   });
+
+  const { invalidate } = useThree();
+  useEffect(() => {
+    if (texture) invalidate();
+  }, [texture, invalidate]);
 
   if (!texture) return null;
 
@@ -140,16 +159,14 @@ const TitlePlane: React.FC<TitlePlaneProps> = ({ text, fontSize, pointer }) => {
   );
 };
 
-function supportsWebGL(): boolean {
-  try {
-    const canvas = document.createElement('canvas');
-    return Boolean(
-      canvas.getContext('webgl2') || canvas.getContext('webgl')
-    );
-  } catch {
-    return false;
-  }
-}
+/** Re-renders one frame whenever `value` changes (for demand/never frameloops). */
+const InvalidateOn: React.FC<{ value: unknown }> = ({ value }) => {
+  const { invalidate } = useThree();
+  useEffect(() => {
+    invalidate();
+  }, [value, invalidate]);
+  return null;
+};
 
 interface HeroTitleProps {
   text: string;
@@ -171,14 +188,23 @@ const HeroTitle: React.FC<HeroTitleProps> = ({ text }) => {
 
   const [fontSize, setFontSize] = useState(0);
   const [isSmallScreen, setIsSmallScreen] = useState(
-    () => window.innerWidth < 768
+    () => window.innerWidth < BREAKPOINT_MOBILE
   );
   const webglOk = useMemo(supportsWebGL, []);
   const useWebGL = !reducedMotion && !isSmallScreen && webglOk;
 
+  // render continuously only while the hover ripple is active; otherwise the
+  // shader output is static, so a demand-rendered frame is pixel-identical
+  const [hoverActive, setHoverActive] = useState(false);
+  const inView = useInView(wrapRef, { margin: '100px' });
+  const pageVisible = usePageVisible();
+  const frameloop =
+    !inView || !pageVisible ? 'never' : hoverActive ? 'always' : 'demand';
+  const handleSettle = useCallback(() => setHoverActive(false), []);
+
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
+      setIsSmallScreen(window.innerWidth < BREAKPOINT_MOBILE);
       if (h1Ref.current) {
         setFontSize(parseFloat(getComputedStyle(h1Ref.current).fontSize));
       }
@@ -201,7 +227,10 @@ const HeroTitle: React.FC<HeroTitleProps> = ({ text }) => {
     <div
       ref={wrapRef}
       className={`hero-title-wrap ${useWebGL ? 'hero-title-wrap--webgl' : ''}`}
-      onPointerEnter={() => (pointer.current.hoverTarget = 1)}
+      onPointerEnter={() => {
+        pointer.current.hoverTarget = 1;
+        setHoverActive(true);
+      }}
       onPointerLeave={() => (pointer.current.hoverTarget = 0)}
       onPointerMove={handlePointerMove}
     >
@@ -212,11 +241,18 @@ const HeroTitle: React.FC<HeroTitleProps> = ({ text }) => {
         <div className="hero-title-canvas" aria-hidden="true">
           <Canvas
             orthographic
+            frameloop={frameloop}
             dpr={[1, 2]}
             gl={{ antialias: false, alpha: true }}
             camera={{ position: [0, 0, 1] }}
           >
-            <TitlePlane text={text} fontSize={fontSize} pointer={pointer} />
+            <InvalidateOn value={frameloop} />
+            <TitlePlane
+              text={text}
+              fontSize={fontSize}
+              pointer={pointer}
+              onSettle={handleSettle}
+            />
           </Canvas>
         </div>
       )}

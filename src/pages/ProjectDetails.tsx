@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { getProject } from '../data/projects';
 import { clipReveal, revealBlur, staggerContainer } from '../utils/animations';
 import '../styles/ProjectDetails.css';
+import WindowBar from '../components/WindowBar';
 
 const ProjectDetails: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -13,12 +14,7 @@ const ProjectDetails: React.FC = () => {
     return (
       <div className="project-details-page">
         <div className="terminal-window project-404">
-          <div className="terminal-window__bar">
-            <span className="dot dot--red" />
-            <span className="dot dot--yellow" />
-            <span className="dot dot--green" />
-            <span className="terminal-window__title">~/projects</span>
-          </div>
+          <WindowBar title="~/projects" />
           <div className="terminal-window__body">
             <p className="prompt-line">
               <span className="prompt-symbol">$</span> open {slug}
@@ -98,12 +94,7 @@ const ProjectDetails: React.FC = () => {
 
         <div className="project-panes">
           <motion.div className="terminal-window" variants={revealBlur}>
-            <div className="terminal-window__bar">
-              <span className="dot dot--red" />
-              <span className="dot dot--yellow" />
-              <span className="dot dot--green" />
-              <span className="terminal-window__title">features.log</span>
-            </div>
+            <WindowBar title="features.log" />
             <ul className="terminal-window__body pane-list">
               {project.features.map((feature) => (
                 <li key={feature}>
@@ -114,12 +105,7 @@ const ProjectDetails: React.FC = () => {
           </motion.div>
 
           <motion.div className="terminal-window" variants={revealBlur}>
-            <div className="terminal-window__bar">
-              <span className="dot dot--red" />
-              <span className="dot dot--yellow" />
-              <span className="dot dot--green" />
-              <span className="terminal-window__title">challenges.log</span>
-            </div>
+            <WindowBar title="challenges.log" />
             <ul className="terminal-window__body pane-list">
               {project.challenges.map((challenge) => (
                 <li key={challenge}>

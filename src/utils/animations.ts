@@ -1,16 +1,35 @@
 // Framer Motion variants — shared reveal language for the site
 
-const easeOut = [0.22, 1, 0.36, 1] as const;
+import { prefersLightFx } from './device';
 
-export const revealBlur = {
-  hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.7, ease: easeOut },
-  },
-};
+export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+
+const easeOut = EASE_OUT;
+
+// Animating `filter: blur()` is the most GPU-expensive reveal on phones, and
+// several panes run it at once when a section scrolls in — enough to starve the
+// skill-bar transforms of frames. Drop the blur on touch devices; the opacity +
+// translate reveal still reads cleanly.
+const lightFx = prefersLightFx();
+
+export const revealBlur = lightFx
+  ? {
+      hidden: { opacity: 0, y: 24 },
+      visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.7, ease: easeOut },
+      },
+    }
+  : {
+      hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+      visible: {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        transition: { duration: 0.7, ease: easeOut },
+      },
+    };
 
 export const clipReveal = {
   hidden: { clipPath: 'inset(0 0 100% 0)', y: 12 },

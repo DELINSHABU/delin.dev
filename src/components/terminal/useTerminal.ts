@@ -17,7 +17,7 @@ export interface TerminalActions {
   login: (username: string, password: string) => Promise<boolean>;
 }
 
-interface TermLine {
+export interface TermLine {
   id: number;
   node: React.ReactNode;
 }

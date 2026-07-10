@@ -31,9 +31,10 @@
   opacity: 0.5;
 }
 
-/* animated film grain */
+/* animated film grain; the shift keyframes translate at most 3%, so an 8%
+   bleed is never revealed — keeps the blended area near viewport-size */
 .terminal-bg__grain {
-  inset: -50%;
+  inset: -8%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
   opacity: 0.04;
@@ -67,13 +68,22 @@
 .terminal-bg__grid {
   position: absolute;
   inset: 0;
+  transform: rotateX(62deg);
+  transform-origin: top center;
+  overflow: hidden;
+}
+
+/* one tile of top bleed so a 0..56px translate never shows an edge; the flow
+   animates transform (compositor-only) instead of background-position (paint) */
+.terminal-bg__grid-pattern {
+  position: absolute;
+  inset: -56px 0;
   background-image:
     linear-gradient(to right, var(--glow) 1px, transparent 1px),
     linear-gradient(to top, var(--glow) 1px, transparent 1px);
   background-size: 56px 56px;
-  transform: rotateX(62deg);
-  transform-origin: top center;
   opacity: 0.55;
+  will-change: transform;
 }
 
 /* soft radial accent glow that parallaxes with the mouse */

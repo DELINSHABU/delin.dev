@@ -2,6 +2,7 @@ import React from 'react';
 import { useEditorState } from '../../hooks/useEditorState';
 import { useListEditor } from '../../hooks/useListEditor';
 import EditorShell from './EditorShell';
+import Icon from '../Icon';
 
 interface JourneyItem {
   year: string;
@@ -60,7 +61,7 @@ const JourneyEditor: React.FC = () => {
                   className="year-input"
                 />
                 <button className="remove-item-btn" onClick={() => removeItem(index)}>
-                  <i className="fas fa-trash"></i>
+                  <Icon name="fas fa-trash" />
                 </button>
               </div>
               <div className="form-group">
@@ -93,7 +94,7 @@ const JourneyEditor: React.FC = () => {
               })
             }
           >
-            <i className="fas fa-plus"></i> Add Journey Item
+            <Icon name="fas fa-plus" /> Add Journey Item
           </button>
         </div>
       ) : (

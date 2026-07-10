@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { projects, Project } from '../data/projects';
 import { revealBlur, staggerContainer } from '../utils/animations';
 import '../styles/ProjectGrid.css';
+import WindowBar from './WindowBar';
 
-const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
+const ProjectCard = React.memo<{ project: Project }>(({ project }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -41,14 +42,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
           onPointerLeave={handlePointerLeave}
         >
           <div className="project-card__glow" aria-hidden="true" />
-          <div className="terminal-window__bar">
-            <span className="dot dot--red" />
-            <span className="dot dot--yellow" />
-            <span className="dot dot--green" />
-            <span className="terminal-window__title">
-              ~/projects/{project.slug}
-            </span>
-          </div>
+          <WindowBar title={<>~/projects/{project.slug}</>} />
           {project.screenshot && (
             <div className="project-card__preview" aria-hidden="true">
               <img src={project.screenshot} alt="" loading="lazy" />
@@ -72,7 +66,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
       </Link>
     </motion.div>
   );
-};
+});
 
 const ProjectGrid: React.FC = () => (
   <motion.div

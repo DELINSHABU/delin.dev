@@ -1,5 +1,5 @@
 @import './styles/tokens.css';
-@import './styles/terminal.css';
+@import './styles/terminal-window.css';
 
 * {
   margin: 0;

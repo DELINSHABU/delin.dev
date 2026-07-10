@@ -8,6 +8,8 @@ import {
   email as CONTACT_EMAIL,
 } from '../data/profile';
 import '../styles/Contact.css';
+import Icon from '../components/Icon';
+import WindowBar from '../components/WindowBar';
 
 interface FormData {
   name: string;
@@ -61,7 +63,7 @@ const Contact: React.FC = () => {
             {CONTACT_METHODS.map((method) => (
               <div key={method.label} className="contact-method">
                 <span className="contact-icon">
-                  <i className={method.icon} aria-hidden="true"></i>
+                  <Icon name={method.icon} />
                 </span>
                 <div className="contact-details">
                   <span className="contact-label">{method.label}</span>
@@ -82,19 +84,14 @@ const Contact: React.FC = () => {
                 aria-label={link.label}
                 data-cursor="hover"
               >
-                <i className={link.icon} aria-hidden="true"></i>
+                <Icon name={link.icon} />
               </a>
             ))}
           </div>
         </motion.div>
 
         <motion.div className="terminal-window contact-window" variants={revealBlur}>
-          <div className="terminal-window__bar">
-            <span className="dot dot--red" />
-            <span className="dot dot--yellow" />
-            <span className="dot dot--green" />
-            <span className="terminal-window__title">~/send-message</span>
-          </div>
+          <WindowBar title="~/send-message" />
           <form onSubmit={handleSubmit} className="terminal-window__body contact-form">
             <div className="form-field">
               <input
@@ -159,11 +156,16 @@ const Contact: React.FC = () => {
                 transition={{ duration: 0.3 }}
                 aria-hidden="true"
               >
+                {/* run the bounce loop only while the indicator is visible */}
                 {[0, 1, 2].map((i) => (
                   <motion.span
                     key={i}
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                    animate={formData.message ? { y: [0, -4, 0] } : { y: 0 }}
+                    transition={
+                      formData.message
+                        ? { duration: 0.6, repeat: Infinity, delay: i * 0.15 }
+                        : { duration: 0.2 }
+                    }
                   />
                 ))}
               </motion.div>

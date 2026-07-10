@@ -2,6 +2,7 @@ import React from 'react';
 import { useEditorState } from '../../hooks/useEditorState';
 import { useListEditor } from '../../hooks/useListEditor';
 import EditorShell from './EditorShell';
+import Icon from '../Icon';
 
 interface SkillCategory {
   title: string;
@@ -97,7 +98,7 @@ const SkillsEditor: React.FC = () => {
                   className="remove-category-btn"
                   onClick={() => removeItem(categoryIndex)}
                 >
-                  <i className="fas fa-trash"></i>
+                  <Icon name="fas fa-trash" />
                 </button>
               </div>
               <div className="skills-list">
@@ -112,12 +113,12 @@ const SkillsEditor: React.FC = () => {
                       className="remove-skill-btn"
                       onClick={() => removeSkill(categoryIndex, skillIndex)}
                     >
-                      <i className="fas fa-times"></i>
+                      <Icon name="fas fa-times" />
                     </button>
                   </div>
                 ))}
                 <button className="add-skill-btn" onClick={() => addSkill(categoryIndex)}>
-                  <i className="fas fa-plus"></i> Add Skill
+                  <Icon name="fas fa-plus" /> Add Skill
                 </button>
               </div>
             </div>
@@ -126,7 +127,7 @@ const SkillsEditor: React.FC = () => {
             className="add-category-btn"
             onClick={() => addItem({ title: 'New Category', skills: ['New Skill'] })}
           >
-            <i className="fas fa-plus"></i> Add Category
+            <Icon name="fas fa-plus" /> Add Category
           </button>
         </div>
       ) : (

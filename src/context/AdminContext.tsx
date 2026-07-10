@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 interface AdminContextType {
   isAuthenticated: boolean;
@@ -42,34 +49,40 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
-    if (!ADMIN_PASSWORD_HASH) {
-      console.warn(
-        'Admin login is disabled: set REACT_APP_ADMIN_PASSWORD_HASH (see .env.example).'
-      );
+  const login = useCallback(
+    async (username: string, password: string): Promise<boolean> => {
+      if (!ADMIN_PASSWORD_HASH) {
+        console.warn(
+          'Admin login is disabled: set REACT_APP_ADMIN_PASSWORD_HASH (see .env.example).'
+        );
+        return false;
+      }
+      // If a username is configured, reject non-matching usernames.
+      if (ADMIN_USERNAME && username.toLowerCase() !== ADMIN_USERNAME.toLowerCase()) {
+        return false;
+      }
+      const inputHash = await sha256Hex(password);
+      if (inputHash === ADMIN_PASSWORD_HASH) {
+        setIsAuthenticated(true);
+        localStorage.setItem('adminAuth', 'true');
+        return true;
+      }
       return false;
-    }
-    // If a username is configured, reject non-matching usernames.
-    if (ADMIN_USERNAME && username.toLowerCase() !== ADMIN_USERNAME.toLowerCase()) {
-      return false;
-    }
-    const inputHash = await sha256Hex(password);
-    if (inputHash === ADMIN_PASSWORD_HASH) {
-      setIsAuthenticated(true);
-      localStorage.setItem('adminAuth', 'true');
-      return true;
-    }
-    return false;
-  };
+    },
+    []
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setIsAuthenticated(false);
     localStorage.removeItem('adminAuth');
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({ isAuthenticated, login, logout }),
+    [isAuthenticated, login, logout]
+  );
 
   return (
-    <AdminContext.Provider value={{ isAuthenticated, login, logout }}>
-      {children}
-    </AdminContext.Provider>
+    <AdminContext.Provider value={value}>{children}</AdminContext.Provider>
   );
 };

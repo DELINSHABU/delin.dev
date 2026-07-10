@@ -2,6 +2,7 @@ import React from 'react';
 import { useEditorState } from '../../hooks/useEditorState';
 import { useListEditor } from '../../hooks/useListEditor';
 import EditorShell from './EditorShell';
+import Icon from '../Icon';
 
 interface Project {
   id: string;
@@ -86,7 +87,7 @@ const ProjectsEditor: React.FC = () => {
                   className="remove-project-btn"
                   onClick={() => removeItem(projectIndex)}
                 >
-                  <i className="fas fa-trash"></i>
+                  <Icon name="fas fa-trash" />
                 </button>
               </div>
 
@@ -146,7 +147,7 @@ const ProjectsEditor: React.FC = () => {
                         className="remove-tech-btn"
                         onClick={() => removeTechnology(projectIndex, techIndex)}
                       >
-                        <i className="fas fa-times"></i>
+                        <Icon name="fas fa-times" />
                       </button>
                     </div>
                   ))}
@@ -154,7 +155,7 @@ const ProjectsEditor: React.FC = () => {
                     className="add-tech-btn"
                     onClick={() => addTechnology(projectIndex)}
                   >
-                    <i className="fas fa-plus"></i> Add Tech
+                    <Icon name="fas fa-plus" /> Add Tech
                   </button>
                 </div>
               </div>
@@ -173,7 +174,7 @@ const ProjectsEditor: React.FC = () => {
               })
             }
           >
-            <i className="fas fa-plus"></i> Add Project
+            <Icon name="fas fa-plus" /> Add Project
           </button>
         </div>
       ) : (

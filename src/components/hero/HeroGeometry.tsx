@@ -4,6 +4,8 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useInView, useReducedMotion } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
 import * as THREE from 'three';
+import usePageVisible from '../../hooks/usePageVisible';
+import { BREAKPOINT_HERO_GEOMETRY } from '../../utils/device';
 
 interface MeshProps {
   scrollYProgress: MotionValue<number>;
@@ -39,14 +41,19 @@ const HeroGeometry: React.FC<HeroGeometryProps> = ({ scrollYProgress }) => {
   const reducedMotion = useReducedMotion() ?? false;
   const containerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(containerRef, { margin: '200px' });
-  const [show] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 900);
+  const pageVisible = usePageVisible();
+  const [show] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.innerWidth >= BREAKPOINT_HERO_GEOMETRY
+  );
 
   if (reducedMotion || !show) return null;
 
   return (
     <div ref={containerRef} className="hero-geometry" aria-hidden="true">
       <Canvas
-        frameloop={inView ? 'always' : 'demand'}
+        frameloop={inView && pageVisible ? 'always' : 'demand'}
         dpr={[1, 1.5]}
         gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
         camera={{ position: [0, 0, 4] }}

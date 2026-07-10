@@ -9,7 +9,7 @@ import {
   animate,
 } from 'framer-motion';
 import SectionHeading from '../components/SectionHeading';
-import { revealBlur, fadeInLeft, fadeInRight, staggerContainer } from '../utils/animations';
+import { revealBlur, fadeInLeft, fadeInRight, staggerContainer, EASE_OUT } from '../utils/animations';
 import {
   about as ABOUT_PARAGRAPHS,
   skills as SKILLS,
@@ -19,6 +19,7 @@ import {
 } from '../data/profile';
 import { useParallax } from '../hooks/useParallax';
 import '../styles/About.css';
+import WindowBar from '../components/WindowBar';
 
 const StatCard: React.FC<{ value: number; suffix: string; label: string }> = ({
   value,
@@ -64,7 +65,7 @@ const SkillBar: React.FC<SkillItem> = ({ name, level }) => {
           className="skill-bar-fill"
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: level / 100 } : { scaleX: 0 }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.1 }}
           style={{ transformOrigin: 'left' }}
         />
       </div>
@@ -94,12 +95,7 @@ const About: React.FC = () => {
           variants={staggerContainer}
         >
           <motion.div className="terminal-window about-window" variants={revealBlur}>
-            <div className="terminal-window__bar">
-              <span className="dot dot--red" />
-              <span className="dot dot--yellow" />
-              <span className="dot dot--green" />
-              <span className="terminal-window__title">~/about.md</span>
-            </div>
+            <WindowBar title="~/about.md" />
             <div className="terminal-window__body">
               <p className="prompt-line">
                 <span className="prompt-symbol">$</span> cat about.md
@@ -141,14 +137,7 @@ const About: React.FC = () => {
                 className="terminal-window skill-pane"
                 variants={revealBlur}
               >
-                <div className="terminal-window__bar">
-                  <span className="dot dot--red" />
-                  <span className="dot dot--yellow" />
-                  <span className="dot dot--green" />
-                  <span className="terminal-window__title">
-                    ~/skills/{skillSet.category}
-                  </span>
-                </div>
+                <WindowBar title={<>~/skills/{skillSet.category}</>} />
                 <div className="terminal-window__body skill-bar-list">
                   {skillSet.items.map((skill) => (
                     <SkillBar key={skill.name} {...skill} />

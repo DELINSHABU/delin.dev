@@ -12,6 +12,7 @@ import Contact from './pages/Contact';
 import Header from './components/Header';
 import ScrollProgress from './components/ScrollProgress';
 import './styles/App.css';
+import { EASE_OUT } from './utils/animations';
 
 const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
 const AdminPage = lazy(() => import('./pages/admin/AdminPage'));
@@ -23,7 +24,7 @@ const pageVariants = {
   exit: { opacity: 0, y: -16, filter: 'blur(4px)' },
 };
 
-const pageTransition = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
+const pageTransition = { duration: 0.4, ease: EASE_OUT };
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
   return (

@@ -3,6 +3,9 @@ import React, { useMemo, useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { MotionValue } from 'framer-motion';
 import * as THREE from 'three';
+import usePageVisible from '../../hooks/usePageVisible';
+import { pointerNormX, pointerNormY, subscribePointer } from '../../lib/pointer';
+import { BREAKPOINT_MOBILE, isLowEndDevice } from '../../utils/device';
 
 const vertexShader = `
 precision highp float;
@@ -126,6 +129,7 @@ const ACCENT_STOPS = ['#5ea2ff', '#54d8e8', '#9a7cff', '#63e6a4'].map(
   (c) => new THREE.Color(c)
 );
 const tmpAccent = new THREE.Color();
+const tmpMouse = new THREE.Vector2(0.5, 0.5);
 
 interface AtmospherePlaneProps {
   scrollProgress: MotionValue<number>;
@@ -138,7 +142,6 @@ const AtmospherePlane: React.FC<AtmospherePlaneProps> = ({
 }) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null!);
   const { viewport } = useThree();
-  const mousePos = useRef(new THREE.Vector2(0.5, 0.5));
 
   const uniforms = useMemo(
     () => ({
@@ -153,22 +156,15 @@ const AtmospherePlane: React.FC<AtmospherePlaneProps> = ({
     []
   );
 
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      mousePos.current.set(
-        event.clientX / window.innerWidth,
-        1 - event.clientY / window.innerHeight
-      );
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  useEffect(() => subscribePointer(), []);
 
   useFrame((state) => {
     if (!materialRef.current) return;
     const u = materialRef.current.uniforms;
     u.uTime.value = state.clock.elapsedTime;
-    (u.uMouse.value as THREE.Vector2).lerp(mousePos.current, 0.06);
+    // shared pointer bus; shader-space Y points up
+    tmpMouse.set(pointerNormX.get(), 1 - pointerNormY.get());
+    (u.uMouse.value as THREE.Vector2).lerp(tmpMouse, 0.06);
     // the shader is the farthest layer, so it trails the scroll slightly
     u.uScroll.value = THREE.MathUtils.lerp(
       u.uScroll.value,
@@ -200,6 +196,36 @@ const AtmospherePlane: React.FC<AtmospherePlaneProps> = ({
   );
 };
 
+/**
+ * On low-end hardware, drives a demand frameloop at half the display rate;
+ * also repaints one frame whenever the loop mode changes (e.g. tab returns).
+ */
+const FrameDriver: React.FC<{ halfRate: boolean; mode: string }> = ({
+  halfRate,
+  mode,
+}) => {
+  const { invalidate } = useThree();
+
+  useEffect(() => {
+    invalidate();
+  }, [mode, invalidate]);
+
+  useEffect(() => {
+    if (!halfRate || mode !== 'demand') return;
+    let raf = 0;
+    let tick = 0;
+    const loop = () => {
+      tick += 1;
+      if (tick % 2 === 0) invalidate();
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [halfRate, mode, invalidate]);
+
+  return null;
+};
+
 interface AtmosphereShaderProps {
   reducedMotion: boolean;
   scrollProgress: MotionValue<number>;
@@ -212,19 +238,35 @@ const AtmosphereShader: React.FC<AtmosphereShaderProps> = ({
   scrollVelocity,
 }) => {
   const isSmallScreen =
-    typeof window !== 'undefined' && window.innerWidth < 768;
+    typeof window !== 'undefined' && window.innerWidth < BREAKPOINT_MOBILE;
+  const pageVisible = usePageVisible();
+  const lowEnd = isLowEndDevice();
+
+  // weak hardware renders the same shader at 1x resolution / half rate;
+  // capable machines keep the exact original output
+  const frameloop = reducedMotion || !pageVisible
+    ? 'never'
+    : lowEnd
+      ? 'demand'
+      : 'always';
+  const dpr: number | [number, number] = lowEnd
+    ? 1
+    : isSmallScreen
+      ? [1, 1.25]
+      : [1, 1.5];
 
   return (
     <Canvas
-      frameloop={reducedMotion ? 'never' : 'always'}
-      dpr={isSmallScreen ? [1, 1.25] : [1, 1.5]}
+      frameloop={frameloop}
+      dpr={dpr}
       gl={{ antialias: false, alpha: false, powerPreference: 'low-power' }}
       camera={{ position: [0, 0, 1] }}
       onCreated={({ invalidate }) => {
-        if (reducedMotion) invalidate();
+        if (frameloop === 'never') invalidate();
       }}
       aria-hidden="true"
     >
+      <FrameDriver halfRate={lowEnd} mode={frameloop} />
       <AtmospherePlane
         scrollProgress={scrollProgress}
         scrollVelocity={scrollVelocity}
